@@ -1,69 +1,217 @@
-import Image from "next/image";
+import Link from "next/link";
+import CategoryCard from "@/components/CategoryCard";
+import DestinationCard from "@/components/DestinationCard";
+import EventCard from "@/components/EventCard";
+import ExperienceCard from "@/components/ExperienceCard";
+import NewsletterForm from "@/components/NewsletterForm";
+import PackageCard from "@/components/PackageCard";
+import Section from "@/components/Section";
+import Hero from "@/components/home/Hero";
+import TripSearchForm from "@/components/home/TripSearchForm";
+import SafeImage from "@/components/ui/SafeImage";
+import { buttonStyles } from "@/components/ui/buttons";
+import { categories } from "@/data/categories";
+import { destinations } from "@/data/destinations";
+import { events } from "@/data/events";
+import { experiences } from "@/data/experiences";
+import { packages } from "@/data/packages";
+
+const benefits = [
+  {
+    title: "Asesoría personalizada",
+    text: "Te escuchamos y armamos opciones según lo que buscas en tu viaje.",
+  },
+  {
+    title: "Cotización a tu medida",
+    text: "Pídenos una propuesta con tus fechas, viajeros y presupuesto.",
+  },
+  {
+    title: "Bolivia y el mundo",
+    text: "Desde escapadas nacionales hasta viajes internacionales.",
+  },
+  {
+    title: "Experiencias y eventos",
+    text: "Suma excursiones, entretenimiento y eventos a tu plan.",
+  },
+];
+
+const gridClass = "grid gap-6 sm:grid-cols-2";
 
 export default function Home() {
+  const internationalDestinations = destinations.filter(
+    (destination) => destination.scope === "international" && destination.featured,
+  );
+  const nationalDestinations = destinations.filter(
+    (destination) => destination.scope === "national",
+  );
+  const featuredExperiences = experiences.filter((experience) => experience.featured);
+
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert h-5 w-[100px]"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
+    <main className="flex-1">
+      <Hero />
+      <TripSearchForm destinationNames={destinations.map((destination) => destination.name)} />
+
+      <Section
+        id="categorias"
+        title="Elige tu tipo de viaje"
+        description="Explora paquetes según lo que más te entusiasma."
+      >
+        <ul className="grid grid-cols-2 gap-4 lg:grid-cols-4">
+          {categories.map((category) => (
+            <li key={category.slug}>
+              <CategoryCard category={category} />
+            </li>
+          ))}
+        </ul>
+      </Section>
+
+      <Section
+        id="destinos"
+        title="Destinos destacados"
+        description="Lugares del mundo para inspirar tu próxima escapada."
+        action={{ label: "Ver todos los destinos", href: "/destinations" }}
+        tone="surface"
+      >
+        <ul className="grid grid-cols-2 gap-4 sm:gap-6 lg:grid-cols-4">
+          {internationalDestinations.map((destination) => (
+            <li key={destination.slug}>
+              <DestinationCard destination={destination} />
+            </li>
+          ))}
+        </ul>
+      </Section>
+
+      <Section
+        id="paquetes"
+        title="Paquetes recomendados"
+        description="Ejemplos de paquetes. Escríbenos y los ajustamos a tus fechas y a tu presupuesto."
+        action={{ label: "Ver todos los paquetes", href: "/packages" }}
+      >
+        <ul className={`${gridClass} lg:grid-cols-3`}>
+          {packages.map((pkg) => (
+            <li key={pkg.slug}>
+              <PackageCard pkg={pkg} />
+            </li>
+          ))}
+        </ul>
+      </Section>
+
+      <Section
+        id="experiencias"
+        title="Experiencias y excursiones"
+        description="Suma actividades a tu viaje: paseos, visitas guiadas y más."
+        action={{ label: "Ver todas las experiencias", href: "/experiences" }}
+        tone="surface"
+      >
+        <ul className={`${gridClass} lg:grid-cols-4`}>
+          {featuredExperiences.map((experience) => (
+            <li key={experience.slug}>
+              <ExperienceCard experience={experience} />
+            </li>
+          ))}
+        </ul>
+      </Section>
+
+      <Section
+        id="beneficios"
+        title="¿Por qué reservar con Mundo Viajero?"
+        description="Te acompañamos desde la idea hasta la cotización."
+      >
+        <ul className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+          {benefits.map((benefit) => (
+            <li
+              key={benefit.title}
+              className="rounded-2xl border border-travel-border bg-travel-background p-5"
+            >
+              <span
+                aria-hidden="true"
+                className="flex size-10 items-center justify-center rounded-full bg-travel-accent-light text-travel-primary-dark"
+              >
+                <svg viewBox="0 0 24 24" className="size-5" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" focusable="false">
+                  <path d="M5 12.5l4.5 4.5L19 7.5" />
+                </svg>
+              </span>
+              <h3 className="mt-4 font-semibold text-travel-primary-dark">{benefit.title}</h3>
+              <p className="mt-2 text-sm text-travel-muted">{benefit.text}</p>
+            </li>
+          ))}
+        </ul>
+      </Section>
+
+      <Section
+        id="eventos"
+        title="Eventos y conciertos"
+        description="Ejemplos ilustrativos. Consulta por artistas, fechas y entradas disponibles."
+        action={{ label: "Ver todos los eventos", href: "/events" }}
+        tone="surface"
+      >
+        <ul className={`${gridClass} lg:grid-cols-3`}>
+          {events.map((event) => (
+            <li key={event.slug}>
+              <EventCard event={event} />
+            </li>
+          ))}
+        </ul>
+      </Section>
+
+      <Section
+        id="nacionales"
+        title="Destinos nacionales"
+        description="Descubre Bolivia: salares, selva, valles y ciudades con historia."
+        action={{ label: "Ver todos los destinos", href: "/destinations" }}
+        tone="sand"
+      >
+        <ul className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-5">
+          {nationalDestinations.map((destination) => (
+            <li key={destination.slug}>
+              <DestinationCard
+                destination={destination}
+                variant="compact"
+                note="Consulta fechas recomendadas"
+              />
+            </li>
+          ))}
+        </ul>
+      </Section>
+
+      <section
+        aria-labelledby="newsletter-title"
+        className="relative isolate overflow-hidden text-white"
+      >
+        <SafeImage
+          src="/images/newsletter-cta.jpg"
+          alt=""
+          label="Mundo Viajero"
+          showLabel={false}
+          sizes="100vw"
         />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the{" "}
-            <code className="rounded bg-black/[.06] px-1.5 py-0.5 font-mono text-[0.9em] dark:bg-white/[.08]">
-              page.tsx
-            </code>{" "}
-            file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
+        <div className="absolute inset-0 bg-travel-primary-dark/75" />
+        <div className="relative mx-auto w-full max-w-6xl px-4 py-14 sm:px-6">
+          <h2 id="newsletter-title" className="text-2xl font-semibold tracking-tight sm:text-3xl">
+            Recibe ideas para tu próximo viaje
+          </h2>
+          <p className="mt-2 max-w-xl text-white/90">
+            Déjanos tu correo para novedades de destinos, paquetes y experiencias.
           </p>
+          <NewsletterForm />
         </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert h-[14px] w-4"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={14}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
+      </section>
+
+      <section aria-labelledby="cta-title" className="bg-travel-accent-light">
+        <div className="mx-auto flex w-full max-w-6xl flex-col items-start gap-4 px-4 py-12 sm:flex-row sm:items-center sm:justify-between sm:px-6">
+          <div>
+            <h2 id="cta-title" className="text-2xl font-semibold tracking-tight text-travel-primary-dark">
+              ¿Listo para planear tu viaje?
+            </h2>
+            <p className="mt-1 text-travel-text">
+              Cuéntanos qué tienes en mente y armamos una cotización a tu medida.
+            </p>
+          </div>
+          <Link href="/quote" className={`${buttonStyles.secondary} shrink-0`}>
+            Cotizar mi viaje
+          </Link>
         </div>
-      </main>
-    </div>
+      </section>
+    </main>
   );
 }

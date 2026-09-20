@@ -1,26 +1,72 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  color-scheme: light;
+
+  /* Paleta Mundo Viajero. Se exponen a Tailwind más abajo (bg-travel-*, text-travel-*, border-travel-*).
+     Contraste WCAG AA (4.5:1) verificado el 2026-09-18 para los colores usados como texto sobre
+     background, surface y sand: --travel-muted, --travel-success y --travel-warning se oscurecieron
+     ligeramente respecto de la paleta base (#68758A, #218739, #C17C00) para cumplirlo.
+     Reglas de uso:
+     - Texto sobre --travel-accent: usar --travel-text (6.8:1), nunca blanco (2.1:1).
+     - --travel-teal (3.3:1 con blanco): solo para íconos, fondos decorativos, bordes y texto grande
+       (≥ 24px, o ≥ 18.66px en negrita); no para texto normal. */
+  --travel-primary: #0f4c81;
+  --travel-primary-dark: #07345a;
+  --travel-accent: #f4a261;
+  --travel-accent-light: #ffe0bd;
+  --travel-teal: #2a9d8f;
+  --travel-sand: #f7f3ed;
+  --travel-background: #ffffff;
+  --travel-surface: #f5f7fa;
+  --travel-text: #172b4d;
+  --travel-muted: #647084;
+  --travel-border: #dde4ec;
+  --travel-success: #1f8036;
+  --travel-warning: #9b6400;
+  --travel-danger: #c0392b;
+
+  --background: var(--travel-background);
+  --foreground: var(--travel-text);
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
+
+  --color-travel-primary: var(--travel-primary);
+  --color-travel-primary-dark: var(--travel-primary-dark);
+  --color-travel-accent: var(--travel-accent);
+  --color-travel-accent-light: var(--travel-accent-light);
+  --color-travel-teal: var(--travel-teal);
+  --color-travel-sand: var(--travel-sand);
+  --color-travel-background: var(--travel-background);
+  --color-travel-surface: var(--travel-surface);
+  --color-travel-text: var(--travel-text);
+  --color-travel-muted: var(--travel-muted);
+  --color-travel-border: var(--travel-border);
+  --color-travel-success: var(--travel-success);
+  --color-travel-warning: var(--travel-warning);
+  --color-travel-danger: var(--travel-danger);
+
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+}
+
+@layer base {
+  /* Alto del header sticky (h-16): evita que los anclas queden tapados al navegar. */
+  html {
+    scroll-padding-top: 4rem;
+  }
+
+  /* Foco visible global; las utilidades focus-visible:* de un componente lo pueden sobrescribir. */
+  :where(a, button, input, select, textarea, summary, [tabindex]):focus-visible {
+    outline: 2px solid var(--travel-primary);
+    outline-offset: 2px;
+  }
 }
