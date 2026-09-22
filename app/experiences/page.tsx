@@ -1,4 +1,5 @@
 import Link from "next/link";
+import CategoryNav from "@/components/CategoryNav";
 import ExperienceCard from "@/components/ExperienceCard";
 import PageHeader from "@/components/PageHeader";
 import { buttonStyles } from "@/components/ui/buttons";
@@ -10,12 +11,8 @@ import {
   parseCategory,
 } from "@/lib/experiences";
 
-const chipBase = "inline-flex items-center rounded-full border px-4 py-1.5 text-sm font-medium";
-
-function countText(shown: number, total: number) {
-  const noun = (n: number) => (n === 1 ? "experiencia" : "experiencias");
-  if (shown === total) return `${total} ${noun(total)}`;
-  return `Mostrando ${shown} de ${total} ${noun(total)}`;
+function countText(shown: number) {
+  return `${shown} ${shown === 1 ? "experiencia" : "experiencias"}`;
 }
 
 // Se filtra en el servidor a partir de la URL (?category=<slug>): los enlaces son compartibles.
@@ -33,56 +30,18 @@ export default async function ExperiencesPage(props: PageProps<"/experiences">) 
       />
 
       <div className="mx-auto w-full max-w-6xl px-4 py-10 sm:px-6">
-        <nav aria-label="Categorías de experiencias">
-          <ul className="flex flex-wrap gap-2">
-            <li>
-              <Link
-                href={experiencesHref()}
-                aria-current={category ? undefined : "page"}
-                className={`${chipBase} ${
-                  category
-                    ? "border-travel-primary text-travel-primary hover:bg-travel-surface"
-                    : "border-travel-primary bg-travel-primary text-white"
-                }`}
-              >
-                Todas ({experiences.length})
-              </Link>
-            </li>
-            {experienceCategories.map((item) => {
-              const count = counts[item.slug];
-              const active = item.slug === category;
-              // Sin experiencias no hay a dónde ir: se muestra deshabilitada (salvo que ya sea la activa).
-              if (count === 0 && !active) {
-                return (
-                  <li key={item.slug}>
-                    <span
-                      aria-disabled="true"
-                      title="Todavía no hay experiencias en esta categoría"
-                      className={`${chipBase} cursor-not-allowed border-dashed border-travel-border text-travel-muted`}
-                    >
-                      {item.name} (0)
-                    </span>
-                  </li>
-                );
-              }
-              return (
-                <li key={item.slug}>
-                  <Link
-                    href={experiencesHref(item.slug)}
-                    aria-current={active ? "page" : undefined}
-                    className={`${chipBase} ${
-                      active
-                        ? "border-travel-primary bg-travel-primary text-white"
-                        : "border-travel-primary text-travel-primary hover:bg-travel-surface"
-                    }`}
-                  >
-                    {item.name} ({count})
-                  </Link>
-                </li>
-              );
-            })}
-          </ul>
-        </nav>
+        <CategoryNav
+          label="Categorías de experiencias"
+          total={experiences.length}
+          items={experienceCategories.map((item) => ({
+            slug: item.slug,
+            name: item.name,
+            count: counts[item.slug],
+          }))}
+          active={category}
+          hrefFor={experiencesHref}
+          emptyHint="Todavía no hay experiencias en esta categoría"
+        />
 
         <section aria-labelledby="results-title">
           <h2 id="results-title" className="sr-only">
@@ -90,7 +49,7 @@ export default async function ExperiencesPage(props: PageProps<"/experiences">) 
           </h2>
           <p role="status" aria-live="polite" className="mt-6 text-sm font-medium text-travel-text">
             {activeName ? `${activeName}: ` : ""}
-            {countText(results.length, activeName ? results.length : experiences.length)}
+            {countText(results.length)}
           </p>
 
           {results.length > 0 ? (

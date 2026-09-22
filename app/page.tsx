@@ -158,7 +158,7 @@ export default function Home() {
         id="nacionales"
         title="Destinos nacionales"
         description="Descubre Bolivia: salares, selva, valles y ciudades con historia."
-        action={{ label: "Ver todos los destinos", href: "/destinations" }}
+        action={{ label: "Ver viajes por Bolivia", href: "/destinations/bolivia" }}
         tone="sand"
       >
         <ul className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-5">

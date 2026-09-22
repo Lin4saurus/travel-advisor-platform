@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import NationalOverview, { NATIONAL_OVERVIEW_SLUG } from "@/components/destinations/NationalOverview";
 import SafeImage from "@/components/ui/SafeImage";
 import { buttonStyles } from "@/components/ui/buttons";
 import { categories, type TravelCategory } from "@/data/categories";
@@ -23,6 +24,9 @@ export default async function DestinationPage(
   // Next resuelve las rutas prerenderizadas sin distinguir mayúsculas (/destinations/CARTAGENA llega aquí
   // con slug "CARTAGENA"). Si se llamara a notFound() por eso, Next guardaría ese 404 en disco encima de la
   // página prerenderizada de /destinations/cartagena y la dejaría rota hasta el siguiente build.
+  // Lo mismo pasa con la ruta estática hermana /destinations/bolivia: /destinations/Bolivia llega aquí y su 404
+  // sobrescribía bolivia.html (medido: 70 KB → 12 KB). Se renderiza la misma página en vez de dar 404.
+  if (slug.toLowerCase() === NATIONAL_OVERVIEW_SLUG) return <NationalOverview />;
   const destination = destinations.find((item) => item.slug === slug.toLowerCase());
   if (!destination) notFound();
 

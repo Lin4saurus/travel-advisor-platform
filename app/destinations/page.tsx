@@ -34,6 +34,7 @@ export default function DestinationsPage() {
         id="nacionales"
         title="Destinos nacionales"
         description="Bolivia: salares, selva, valles y ciudades con historia."
+        action={{ label: "Ver viajes por Bolivia", href: "/destinations/bolivia" }}
         tone="sand"
       >
         <ul className={gridClass}>

@@ -2,9 +2,9 @@
 
 **Objetivo actual:** Construir una plataforma B2C de asesoría, cotización y venta de viajes (destinos, paquetes, experiencias, eventos y cotización personalizada) con panel administrativo, inspirada en la amplitud funcional de Universal Tours pero con identidad propia.
 
-**Última actualización:** 2026-09-20 04:37 (UTC-4)
+**Última actualización:** 2026-09-21 11:05 (UTC-4)
 
-**Foco actual:** M6 — Experiencias y excursiones: los 4 criterios están `[x]` y verificados en navegador con tus fotos reales; **falta tu confirmación visual**. Siguiente: M7 (Eventos, conciertos y entretenimiento).
+**Foco actual:** M9 — Formulario de cotización multi-step: implementado y verificado; falta tu revisión visual para cerrarlo. Siguiente: M10 (confirmación y modelo de datos; necesita decidir si habrá backend).
 
 ---
 
@@ -91,7 +91,7 @@ Archivos: `app/page.tsx`, `components/home/{Hero,TripSearchForm}.tsx`, `componen
 - `[x]` Beneficios de reservar con la agencia.
   - 4 beneficios redactados sin promesas verificables (sin "mejor precio", plazos ni garantías).
 - `[x]` Eventos y conciertos (muestra).
-  - 3 ejemplos ficticios marcados como "Ejemplo ilustrativo" y "Fechas por confirmar"; sin artistas, fechas ni entradas. "Solicitar información" → `/contact`.
+  - 3 ejemplos ficticios marcados como "Ejemplo ilustrativo" y "Fechas por confirmar"; sin artistas, fechas ni entradas. "Solicitar información" → `/contact` (desde M7 → `/quote?event=<slug>`).
 - `[x]` Destinos nacionales (Bolivia).
   - Los 10 destinos con la nota "Consulta fechas recomendadas"; sin fechas ni precios.
 - `[x]` Newsletter + CTA final.
@@ -179,7 +179,7 @@ Archivos: `app/packages/[slug]/page.tsx`, `components/packages/PackageGallery.ts
 
 ---
 
-### M6 — Experiencias y excursiones `[>]`
+### M6 — Experiencias y excursiones `[x]`
 Archivos: `app/experiences/page.tsx`, `app/experiences/[slug]/page.tsx`, `components/ExperienceCard.tsx` (ampliada), `lib/experiences.ts` (categoría por URL, filtro, conteos, relacionadas), `config/experiences.ts` (recomendaciones generales), `data/experiences.ts` (categorías y modelo ampliado).
 - `[x]` `/experiences` con categorías (visitas guiadas, museos, paseos en barco, naturaleza, parques, gastronomía, aventura, familiar, nocturna, religiosa).
   - Barra de categorías con "Todas" + las 10 pedidas, cada una con su cantidad. Filtra en el servidor por `?category=<slug>` (enlaces compartibles). Las 5 categorías que aún no tienen experiencias (Parques, Gastronomía, Aventura, Familiar, Religiosa) se ven **deshabilitadas** (`aria-disabled`, no son enlaces ni reciben foco); si alguien entra a una por URL se muestra un estado vacío amable con "Consultar por experiencias". Una categoría inválida en la URL se ignora.
@@ -194,39 +194,73 @@ Archivos: `app/experiences/page.tsx`, `app/experiences/[slug]/page.tsx`, `compon
 - Verificado (2026-09-20): `npm run lint` y `npm run build` con exit 0 (7 detalles estáticos). **Lógica 27/27** (10 categorías en orden, conteos, filtro, relacionadas, parámetros hostiles y que las 7 fotos existan en disco). **Navegador con datos y fotos reales 56/56:** lista (11 chips con cantidades, 5 deshabilitados, 7 tarjetas con foto real y sin fallback), filtro por cada categoría, categoría vacía, parámetros inválidos (`constructor`, `__proto__`, `<script>`, 500 caracteres, control), los **7 detalles**, foto real eager, teclado (los chips deshabilitados se saltan), 404 y variantes en mayúsculas sin tocar el HTML prerenderizado, Home con la tarjeta ampliada, 21 enlaces con 200, accesibilidad y sin overflow de 320 a 1280px. **Con datos completos 7/7** (tarjeta y detalle con ciudad, duración, disponibilidad e "incluye"; el dato de una experiencia no se contagia a las demás; datos restaurados y **hash verificado**). Sin regresiones: M5 51/51, M4 79/79, M3 55/55, M2 37/37.
 - Defecto de accesibilidad encontrado y corregido: en `/experiences` los títulos de las tarjetas (`h3`) saltaban directo desde el `h1`; ahora hay un `h2` "Resultados" (oculto visualmente) como en `/packages`.
 - Textos generales (`config/experiences.ts`) redactados por mí en términos neutros: revísalos. No probado en Safari/iOS real ni con lector de pantalla.
-- **Pendiente (tuyo):** confirmación visual en escritorio y móvil. Recién ahí M6 pasa a `[x]`.
+- Confirmación del usuario (2026-09-20): "todo está bien, pasa al siguiente milestone". Con eso M6 pasa a `[x]`.
 
 ---
 
-### M7 — Eventos, conciertos y entretenimiento `[ ]`
-- `[ ]` `/events` con categorías (conciertos, deportivos, ferias, festivales, parques, especiales).
-- `[>]` `EventCard` (imagen, nombre, ciudad, fecha, duración, incluye, estado, **Solicitar información**).
-  - Creada en M2 con imagen, nombre, categoría, ciudad, estado y **Solicitar información**. Faltan fecha, duración e "incluye" (no se inventan mientras no estén confirmados).
-- `[ ]` Ejemplos ficticios editables (sin artistas/fechas/entradas presentados como confirmados).
+### M7 — Eventos, conciertos y entretenimiento `[x]`
+Archivos: `app/events/page.tsx`, `components/EventCard.tsx` (ampliada), `components/CategoryNav.tsx` (nuevo, compartido con `/experiences`), `lib/events.ts`, `config/events.ts` (textos de estado), `data/events.ts` (categorías, estados y modelo ampliado).
+- `[x]` `/events` con categorías (conciertos, deportivos, ferias, festivales, parques, especiales).
+  - "Todas" + las 6 pedidas, cada una con su cantidad, filtrando en el servidor por `?category=<slug>`. Las 3 sin eventos (Deportivos, Ferias, Especiales) se ven **deshabilitadas** (no son enlaces ni reciben foco); si alguien entra a una por URL ve un estado vacío amable con "Consultar por eventos". Una categoría inválida en la URL se ignora. La barra de categorías es ahora un componente compartido (`CategoryNav`) que también usa `/experiences`.
+- `[x]` `EventCard` (imagen, nombre, ciudad, fecha, duración, incluye, estado, **Solicitar información**).
+  - Muestra categoría, la marca **"Ejemplo ilustrativo"**, "Ciudad a consultar · Fecha por confirmar" (o la ciudad y la fecha en español, p. ej. "20 de noviembre de 2026", si están confirmadas), "Estado", "Duración" ("A consultar" sin dato) e "Incluye" solo si está confirmado. El **estado sale de un catálogo cerrado** (`por-confirmar`, `consultar`, `confirmado`, `agotado`) en `config/events.ts`, no de texto libre. El botón lleva a **`/quote?event=<slug>`** (mismo contrato de entrada que `?package=` y `?experience=`, que leerá M9; antes iba a `/contact`, que no tiene milestone propio).
+- `[x]` Ejemplos ficticios editables (sin artistas/fechas/entradas presentados como confirmados).
+  - 3 ejemplos en `data/events.ts` con `isExample: true`, tus 3 fotos de M-IMG, estado "Fechas por confirmar" y ciudad, fecha y duración en `null`. Ni el nombre ni el resumen contienen cifras, artistas, "confirmado", "agotado" ni "entradas disponibles" (comprobado por prueba). No hay página de detalle de evento (el árbol de rutas solo prevé `/events`).
 
 **Verificación:** las tarjetas no afirman disponibilidad real; enlaces de "Solicitar información" funcionan.
+- Verificado (2026-09-20): `npm run lint` y `npm run build` con exit 0. **Lógica 17/17** (6 categorías en orden, conteos, filtro, parámetros hostiles, las 3 fotos existen en disco, ningún texto afirma nada). **Navegador con datos y fotos reales 42/42:** las 3 tarjetas con foto real y sin fallback, las tarjetas **no contienen** cifras, fechas ni palabras de disponibilidad real, filtro por categoría y las 3 categorías vacías por URL, parámetros inválidos u hostiles (200, sin inyección), teclado (los deshabilitados se saltan), los **3 enlaces "Solicitar información" responden 200** y al hacer clic llegan a `/quote?event=<slug>`, Home con la tarjeta ampliada, accesibilidad y sin overflow de 320 a 1280px. **Con datos completos 5/5:** evento confirmado ("Bogotá · 20 de noviembre de 2026", "Confirmado", "4 horas", "Incluye: Traslados", sin marca de ejemplo), agotado, "consultar" y sin fecha (datos restaurados y **hash verificado**).
+- Regresión del refactor de `CategoryNav`: `/experiences` conserva sus 11 categorías (6 enlaces, 5 deshabilitadas) y las baterías de M2–M6 pasan sin cambios funcionales (M2 solo se ajustó a la nueva URL del botón): M6 56/56, M5 51/51, M4 79/79, M3 55/55, M2 37/37.
+- Capturas revisadas en escritorio y móvil (etiquetas legibles sobre las fotos, categorías vacías atenuadas). No probado en Safari/iOS real ni con lector de pantalla.
+- Confirmación del usuario (2026-09-20): "todo está bien, continúa el siguiente milestone". Con eso M7 pasa a `[x]`.
 
 ---
 
-### M8 — Viajes nacionales (Bolivia) `[ ]`
-- `[>]` Sección en home y/o `/destinations/bolivia`.
-  - La sección de la Home está hecha y verificada en M2 (10 destinos con "Consulta fechas recomendadas"). Falta decidir si además habrá `/destinations/bolivia` (hoy responde 404: no es un slug de destino; M3 lo verifica).
-- `[ ]` Tarjetas de destinos nacionales (Uyuni, Chiquitania, Titicaca, Rurrenabaque, Samaipata, Madidi, Tarija, Sucre, Potosí, Santa Cruz).
-- `[ ]` Sin temporadas exactas inventadas → usar `Consulta fechas recomendadas`.
+### M8 — Viajes nacionales (Bolivia) `[x]`
+- `[x]` Sección en home y/o `/destinations/bolivia`.
+  - Se hicieron **ambas** (decisión mía: el "y/o" lo permitía y la Home sola dejaba sin página propia los viajes nacionales). Home: sección `#nacionales` (M2) con el enlace "Ver viajes por Bolivia" → `/destinations/bolivia`. `/destinations` (sección nacional) también lo enlaza.
+  - `/destinations/bolivia` (`components/destinations/NationalOverview.tsx`, renderizado desde `app/destinations/bolivia/page.tsx`): migas Inicio › Destinos › Bolivia, `<h1>` "Viajes nacionales: Bolivia", CTA `/quote?type=escapadas-nacionales` (arriba y al pie), los 10 destinos, y "Paquetes en Bolivia" (los de `region: "Bolivia"`; hoy solo `salar-de-uyuni`, con enlace a `/packages?region=Bolivia`).
+- `[x]` Tarjetas de destinos nacionales (Uyuni, Chiquitania, Titicaca, Rurrenabaque, Samaipata, Madidi, Tarija, Sucre, Potosí, Santa Cruz).
+  - Son las mismas 10 de `data/destinations.ts` (`scope: "national"`), con `DestinationCard`; se verificó que el conjunto, el orden, los nombres y los enlaces coinciden con el código y que las 10 fotos cargan (con `alt`).
+- `[x]` Sin temporadas exactas inventadas → usar `Consulta fechas recomendadas`.
+  - Las 10 tarjetas (Home, `/destinations` y `/destinations/bolivia`) dicen "Consulta fechas recomendadas". Se rastreó `/destinations/bolivia` y las 10 fichas: ningún mes, año, "temporada/verano/invierno/estación" ni precio (`$`, USD, Bs, "desde N"). Se excluyó "época" del rastreo a propósito: "época colonial" (Potosí) es historia, no una temporada. El paquete de Uyuni muestra "Consultar precio".
 
 **Verificación:** todas las tarjetas cargan; ninguna afirma fechas/precios como definitivos.
+- `npm run lint` y `npm run build` con exit 0; `/destinations/bolivia` sale como ruta estática (`○`).
+- Navegador (Edge headless contra `next start -p 3100`, script `m8-test.js` fuera del repo): **34/34**. Cubre h1/h2 y jerarquía sin saltos, migas (con la actual sin enlace), las 10 tarjetas, fotos, ausencia de fechas/precios en la página y en las 10 fichas, CTAs, enlaces desde Home y `/destinations` (y que el clic llega), móvil 375 px (2 columnas, sin desbordamiento), la 404 de un slug inexistente, y las variantes de mayúsculas.
+- **Defecto real encontrado y corregido (mismo patrón que CARTAGENA):** `/destinations/Bolivia` no llega a la ruta estática sino a `[slug]`, que llamaba a `notFound()`, y Next guardaba ese 404 encima de `bolivia.html` (medido: 70 685 → 12 188 bytes; la página quedaba rota hasta el siguiente build). `[slug]` ahora renderiza la misma página cuando `slug.toLowerCase() === "bolivia"` (constante `NATIONAL_OVERVIEW_SLUG`). Con el arreglo, `BOLIVIA`, `Bolivia`, `bOlIvIa`, `BOLIVIA/` y `Bolivia?x=1` dan 200 con la página completa y el HTML en disco sigue siendo la página válida (70 685 → 70 716 bytes: Next lo regenera con +31 bytes de payload; no es el 404). Lo comprobé con el test antes del arreglo (falló) y después (pasa).
+- Regresión sobre el último código: lógica 83/27/17; M7 42; M6 56; M5 51; M4 79; M3 54 (era 55: se quitó el caso "`/destinations/bolivia` → 404", que ahora es una página válida); M2 37. En la primera pasada conjunta M6 se cortó a mitad ("Navigating frame was detached", 39 PASS/0 FAIL) y M7 agotó la primera navegación; repetidos por separado con el mismo build terminan completos (56/56 y 42/42). No lo atribuyo al producto, pero no pude reproducir el corte.
+- Fotos: las únicas que fallan en el optimizador son las galerías opcionales `1/2/3.jpg` de las fichas nacionales (no existen en disco; fallback esperado, ver M-IMG). La portada y las tarjetas cargan todas.
+- Confirmación del usuario (2026-09-21): "todo está bien, continúa el siguiente milestone". Con eso M8 pasa a `[x]`.
 
 ---
 
-### M9 — Formulario de cotización multi-step (núcleo) `[ ]`
-- `[ ]` `/quote` con hero.
-  - Contrato de entrada (ya enlazado desde M2 / M3 / M4): `?package=<slug>`, `?destination=<slug o nombre>` y, desde `/packages`, `?destination&type&date&duration&travelers&budget`. `/quote` debe leerlos, validarlos y precargar el formulario.
-- `[ ]` `QuoteStepper` de 8 pasos: tipo de solicitud, destino, fechas, viajeros, preferencias, presupuesto, contacto, confirmación.
-- `[ ]` `QuoteSummary` que muestra todo lo seleccionado antes de enviar.
-- `[ ]` Validaciones (nombre, email válido, teléfono, destino o "necesito sugerencias", regreso posterior a salida, adultos ≥ 1, edades 0–17, aceptación de privacidad) con mensajes claros.
-- `[ ]` Rangos de presupuesto configurables por país/moneda (no valores rígidos en frontend).
+### M9 — Formulario de cotización multi-step (núcleo) `[>]`
+- `[x]` `/quote` con hero.
+  - `app/quote/page.tsx` (dinámica, `ƒ`): `PageHeader` "Cotiza tu viaje" + el formulario. Lee `searchParams` con `lib/quote-entry.ts` y precarga según el contrato de entrada: `?package=|experience=|event=<slug>` (gana el paquete si vienen varios), `?destination=<slug o nombre>`, `?type=<categoría>` (p. ej. el CTA de `/destinations/bolivia`), `?date=`, `?duration=`, `?travelers=`, `?budget=` (lo que emite `quoteHref` de `/packages`). Lo inválido se descarta en silencio; solo se avisa si un enlace apuntaba a un paquete/experiencia/evento que no existe. Un aviso "Precargamos algunos datos…" aparece solo si se aplicó algo válido.
+- `[x]` `QuoteStepper` de 8 pasos: tipo de solicitud, destino, fechas, viajeros, preferencias, presupuesto, contacto, confirmación.
+  - `components/quote/QuoteStepper.tsx` (estado, navegación, foco) + `QuoteSteps.tsx` (los 8 cuerpos) + `Field.tsx` (etiqueta/pista/error accesibles). Para avanzar hay que dejar bien el paso actual; retroceder es libre; el indicador solo ofrece los pasos ya alcanzados. Foco al título del paso al cambiar y al resumen de errores (`role="alert"`, con enlaces a cada campo) al fallar; el error de un campo desaparece al editarlo. Enter envía el formulario. En móvil el indicador es el texto "Paso n de 8".
+- `[x]` `QuoteSummary` que muestra todo lo seleccionado antes de enviar.
+  - Paso 8: 7 secciones (una por paso) con botón "Editar" que vuelve a ese paso conservando lo escrito; lo no indicado dice "No indicado"/"Sin preferencia" (nunca vacío ni `undefined`); el HTML escrito en los campos se muestra como texto.
+- `[x]` Validaciones con mensajes claros (`lib/quote.ts`, pura y probada aislada).
+  - Nombre (≥ 2), email (formato), teléfono (7–15 dígitos, `+` opcional; admite espacios, paréntesis, puntos y guiones), destino **o** "Necesito sugerencias", fechas (salida ≥ hoy **o** "fechas flexibles"; regreso **posterior** a la salida y solo con salida), adultos 1–50, niños 0–20 con edad 0–17 cada uno, tipo de solicitud, rango de presupuesto, monto opcional (solo dígitos), límites de longitud y aceptación de privacidad.
+- `[x]` Rangos de presupuesto configurables por país/moneda (no rígidos en el frontend).
+  - `config/quote.ts` → `budgetProfiles` (hoy Bolivianos/BOB y Dólares/USD): cada perfil puede definir `amounts` por rango (`min`/`max`) y un texto `basis` ("por persona"…). Los nombres de los rangos salen de `budgetOptions` (`config/search.ts`, los mismos del buscador). **No inventé montos:** todos los perfiles traen `amounts` vacío, así que el formulario muestra solo "Económico / Intermedio / Premium / Aún no lo sé" hasta que el negocio defina cifras (el ejemplo está comentado en el archivo). Además hay un monto aproximado opcional en la moneda elegida.
 
 **Verificación:** completar el flujo con datos válidos e inválidos; comprobar que cada mensaje de error aparece cuando corresponde.
+- `npm run lint` y `npm run build` con exit 0; `/quote` sale como ruta dinámica (`ƒ`).
+- Lógica (`logic-quote-test.js`, módulos reales transpilados): **118/118**. Validación de cada paso con válidos e inválidos (fechas inexistentes/pasadas/de regreso, `1e3`, `-1`, `2.5`, teléfonos y correos límite…), `validateAll`, resumen, configuración, `parseQuoteEntry` (mayúsculas, `__proto__`/`constructor`, precedencia, saneado) y **todos los enlaces `/quote?…` que emite hoy el sitio** (6 paquetes, 7 experiencias, 3 eventos, 18 destinos, Bolivia, y `/packages` → `quoteHref` → `/quote`).
+- Navegador (Edge headless contra `next start -p 3100`, `m9-test.js` fuera del repo): **134/134**. Flujo completo válido y, en cada uno de los 7 pasos con reglas, el caso inválido con su mensaje exacto, el foco y `aria-invalid`/`aria-describedby`; salto entre pasos (no se puede avanzar con el actual roto; sí retroceder); Editar desde el resumen; selector de paquete/experiencia/evento (autorrelleno del destino sin pisar lo escrito; se reinicia al cambiar de tipo); precarga desde la URL (paquete, experiencia, evento, destino, `/packages`, Bolivia, valores inválidos, fecha pasada, XSS); móvil 375 px sin desbordamiento en los 8 pasos; etiquetas, ids únicos, `<legend>` y jerarquía de encabezados en cada paso; teclado (Espacio, flechas, Enter).
+- **Nada se guarda ni se envía:** tras rellenar todo el formulario, `localStorage`/`sessionStorage`/cookies vacíos, ninguna petición no-GET, ningún dato personal ni del formulario en URLs o cuerpos, la URL sigue siendo `/quote`, y al recargar el formulario vuelve vacío.
+- **Defectos reales hallados por los tests y corregidos:** (1) `syncChildAges` con más niños del máximo generaba 20 campos de edad en vez de ninguno mientras "Niños" era inválido; (2) los botones "Editar" del resumen medían 20 px de alto (WCAG 2.2 pide 24 mínimo): ahora 36 px, y los mensajes del resumen de errores también crecieron.
+- Regresión sobre el último código: lógica 83/27/17 (+118 nueva); M1 41; M2 37; M3 54; M4 79; M5 51; M6 56; M7 42; M8 34. Tests viejos actualizados: M7 esperaba el `<h1>` del placeholder de `/quote`; M1 (que no estaba en mi batería habitual) contaba como error los 400 de las galerías opcionales de `/destinations/cartagena`, ruido ya filtrado en los demás tests.
+- **Decisiones mías (dime si prefieres otra):**
+  1. **Sin backend, "Finalizar" no envía nada.** Es coherente con "sin persistencia simulada": el paso 8 lo avisa antes de finalizar y el panel final dice claramente "no se guardó ni se envió" (sin frases de "recibimos tu solicitud" ni plazos). Ese panel es **provisional**: M10 lo reemplaza por `QuoteSuccess` cuando haya dónde guardar.
+  2. **Todo en memoria**: no hay borrador en el navegador (evita guardar datos personales sin que se pida); recargar borra lo escrito.
+  3. Defaults: 2 adultos, 0 niños, moneda = la primera del perfil (Bolivianos), contacto preferido = correo. Sin tipo de solicitud elegido salvo que venga de un enlace (así existe el error del paso 1).
+  4. Canales de contacto: solo correo y llamada (WhatsApp no está en `siteConfig`); se agregan en `contactMethods`.
+  5. El enlace a `/privacy` abre en otra pestaña para no perder lo escrito (esa página sigue siendo placeholder hasta M11).
+- No probado: Safari/iOS reales, lector de pantalla real, ni el aspecto con montos definidos en `amounts` (la lógica sí está probada).
+- **Pendiente (tuyo):** revisión visual de `/quote` en escritorio y móvil, recorriendo los 8 pasos (y probando entrar desde una tarjeta de paquete/experiencia/evento y desde `/packages`).
 
 ---
 
@@ -415,3 +449,13 @@ Este milestone lo hacés **vos**: descargar cada imagen y guardarla en la ruta i
 | 2026-09-20 04:19 | M5 cerrado (`[x]`) con el "adelante" del usuario. Foco pasa a M6. |
 | 2026-09-20 04:37 | M6: `/experiences` con las 10 categorías (5 deshabilitadas sin datos) y filtro `?category=`, `/experiences/[slug]` estático para las 7, `ExperienceCard` ampliada (ciudad, duración, disponibilidad, incluye, Ver experiencia / Consultar), `lib/experiences.ts` y datos de demostración con las 7 fotos reales. Lo no confirmado se muestra como "a consultar". |
 | 2026-09-20 04:37 | M6: verificado (lógica 27/27, navegador 56/56 con fotos reales, 7/7 con datos completos; sin regresiones en M2–M5), lint y build exit 0. Corregido el salto de encabezados en la lista. Baterías de M2/M3 actualizadas al estado con fotos. Criterios `[x]`; M6 sigue `[>]` hasta la confirmación visual del usuario. |
+| 2026-09-20 22:36 | M7 cerrado (`[x]`) tras la confirmación del usuario. Foco pasa a M8. |
+| 2026-09-20 22:31 | M7: `/events` con las 6 categorías (3 deshabilitadas sin datos) y filtro `?category=`, `EventCard` ampliada (ciudad, fecha, duración, incluye, estado cerrado, "Ejemplo ilustrativo", Solicitar información → `/quote?event=`), `lib/events.ts`, `config/events.ts`, datos con las 3 fotos reales y `CategoryNav` compartido (refactor de `/experiences`). |
+| 2026-09-20 22:31 | M7: verificado (lógica 17/17, navegador 42/42 con fotos reales, 5/5 con datos completos; sin regresiones en M2–M6), lint y build exit 0. Criterios `[x]`; M7 sigue `[>]` hasta la confirmación visual del usuario. Nota en M9 (`?experience=`, `?event=`). |
+| 2026-09-20 22:17 | M6 cerrado (`[x]`) tras la confirmación del usuario. Foco pasa a M7. Sigue pendiente la decisión del usuario sobre comprimir los originales de M-IMG (no se tocó nada). |
+| 2026-09-21 00:32 | M8: nueva `/destinations/bolivia` (`components/destinations/NationalOverview.tsx`): migas, 10 destinos nacionales con "Consulta fechas recomendadas", "Paquetes en Bolivia" (región Bolivia) y CTAs a `/quote?type=escapadas-nacionales`. Home y `/destinations` la enlazan ("Ver viajes por Bolivia"). |
+| 2026-09-21 00:32 | M8: corregido un defecto real hallado por el test: `/destinations/Bolivia` caía en `[slug]`, su `notFound()` sobrescribía `bolivia.html` con el 404 (70 685 → 12 188 bytes). `[slug]` ahora renderiza la misma página para ese slug. Nota en CLAUDE.md. |
+| 2026-09-21 00:32 | M8: verificado (navegador 34/34; lógica 83/27/17; M2 37, M3 54, M4 79, M5 51, M6 56, M7 42), lint y build exit 0. Criterios `[x]`; M8 sigue `[>]` hasta la confirmación visual del usuario. Tests de M2/M3 actualizados (la sección nacional ahora incluye un enlace fuera de las tarjetas; `/destinations/bolivia` ya no es 404). |
+| 2026-09-21 11:05 | M8 cerrado (`[x]`) tras la confirmación del usuario. Foco pasa a M9. |
+| 2026-09-21 11:05 | M9: `/quote` real (antes placeholder): `QuoteStepper` de 8 pasos con validación por paso, foco y resumen de errores accesibles, `QuoteSummary` con "Editar" por sección, precarga desde la URL (`lib/quote-entry.ts`), lógica pura en `lib/quote.ts` y configuración editable en `config/quote.ts` (tipos de solicitud, pasos, límites, perfiles de presupuesto por país/moneda sin montos inventados, contacto). Sin backend: "Finalizar" no envía ni guarda nada y lo dice (panel provisional hasta M10). |
+| 2026-09-21 11:05 | M9: verificado (lógica 118/118; navegador 134/134; regresión: lógica 83/27/17, M1 41, M2 37, M3 54, M4 79, M5 51, M6 56, M7 42, M8 34), lint y build exit 0. Corregidos 2 defectos reales (campos de edad con cantidad fuera de rango; botones "Editar" de 20 px). Criterios `[x]`; M9 sigue `[>]` hasta la confirmación visual del usuario. Tests de M1 y M7 actualizados. |
