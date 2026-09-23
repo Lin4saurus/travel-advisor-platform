@@ -11,6 +11,9 @@ type SiteConfig = {
   tagline: string;
   contact: {
     email: string | null;
+    // Canal para cambios/modificaciones de una solicitud ya enviada (M11, `/booking-info`). Si no se define,
+    // esas páginas caen de vuelta a `contact.email` y, si tampoco hay, remiten a `/contact`.
+    reservationsEmail: string | null;
     phone: string | null;
     address: string | null;
     hours: string | null;
@@ -24,6 +27,7 @@ export const siteConfig: SiteConfig = {
   tagline: "Asesoría, cotización y venta de viajes a tu medida.",
   contact: {
     email: null,
+    reservationsEmail: null,
     phone: null,
     address: null,
     hours: null,

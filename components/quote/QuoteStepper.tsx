@@ -1,7 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useRef, useState, type FormEvent } from "react";
+import { useEffect, useRef, useState, useTransition, type FormEvent } from "react";
+import { submitQuoteAction } from "@/app/quote/actions";
 import QuoteSummary from "@/components/quote/QuoteSummary";
 import {
   ConfirmacionStep,
@@ -30,8 +31,12 @@ import {
 
 type FocusRequest = { target: "heading" | "errors"; n: number };
 
-// Formulario de cotización de 8 pasos. Todo vive en memoria: nada se guarda en el navegador ni en un servidor
-// (todavía no hay canal de recepción; ver el aviso del último paso y el panel final).
+// Si `submitQuoteAction` en sí no responde (p. ej. sin conexión), es distinto de que responda con un error
+// controlado (`SubmitQuoteResult.ok === false`, ya trae su propio mensaje amable desde el servidor).
+const NETWORK_ERROR_MESSAGE = "No pudimos enviar tu solicitud. Revisa tu conexión e inténtalo de nuevo.";
+
+// Formulario de cotización de 8 pasos. El estado del formulario vive en memoria (no se guarda en el navegador);
+// al finalizar el paso 8, si todo es válido, se guarda de verdad en Supabase (M10) mediante `submitQuoteAction`.
 export default function QuoteStepper({
   catalog,
   initialState,
@@ -44,7 +49,13 @@ export default function QuoteStepper({
   // Paso más lejano al que se llegó avanzando (los siguientes no se pueden saltar desde el indicador de progreso).
   const [maxReached, setMaxReached] = useState(0);
   const [errors, setErrors] = useState<QuoteErrors>({});
-  const [completed, setCompleted] = useState(false);
+  // No-null = la solicitud ya se guardó con este número; se muestra el panel de confirmación definitivo.
+  const [reference, setReference] = useState<string | null>(null);
+  const [submitError, setSubmitError] = useState<string | null>(null);
+  const [isSubmitting, startSubmitTransition] = useTransition();
+  // Cerrojo síncrono contra el doble envío: `isSubmitting` (de useTransition) se actualiza en un render posterior,
+  // así que dos Enter/clics muy seguidos podrían arrancar dos transiciones antes de que `isSubmitting` pase a true.
+  const submitLockRef = useRef(false);
   const [focusRequest, setFocusRequest] = useState<FocusRequest | null>(null);
   const headingRef = useRef<HTMLHeadingElement>(null);
   const errorsRef = useRef<HTMLDivElement>(null);
@@ -82,7 +93,7 @@ export default function QuoteStepper({
   }
 
   function goTo(target: number) {
-    if (target === step) return;
+    if (target === step || isSubmitting) return;
     if (target > step) {
       // Para avanzar hay que dejar bien el paso actual.
       const found = validateStep(quoteSteps[step].id, state, context());
@@ -91,14 +102,18 @@ export default function QuoteStepper({
     }
     setStep(target);
     setErrors({});
+    setSubmitError(null);
     requestFocus("heading");
   }
 
   function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
+    if (isSubmitting) return;
     if (step < quoteSteps.length - 1) return goTo(step + 1);
 
-    // Último paso: se vuelven a validar los ocho por si algo se editó después de pasarlo.
+    // Último paso: se vuelven a validar los ocho por si algo se editó después de pasarlo. Esta es solo la
+    // validación del lado del cliente (la misma de M9, para no hacer esperar a la persona); el servidor vuelve a
+    // validar todo antes de guardar nada (`lib/quote-submit.ts`), así que esto no es una medida de seguridad.
     const problem = validateAll(state, context());
     if (problem) {
       setMaxReached((previous) => Math.max(previous, stepIndex(problem.step)));
@@ -106,8 +121,27 @@ export default function QuoteStepper({
       return showErrors(problem.errors);
     }
     setErrors({});
-    setCompleted(true);
-    requestFocus("heading");
+
+    if (submitLockRef.current) return;
+    submitLockRef.current = true;
+    setSubmitError(null);
+    startSubmitTransition(async () => {
+      try {
+        const result = await submitQuoteAction(state);
+        if (result.ok) {
+          setReference(result.reference);
+          requestFocus("heading");
+        } else {
+          setSubmitError(result.message);
+          requestFocus("errors");
+        }
+      } catch {
+        setSubmitError(NETWORK_ERROR_MESSAGE);
+        requestFocus("errors");
+      } finally {
+        submitLockRef.current = false;
+      }
+    });
   }
 
   // Lleva el foco al campo con error (el resumen de errores lo usa para cada mensaje).
@@ -122,7 +156,7 @@ export default function QuoteStepper({
   const current = quoteSteps[step];
   const errorEntries = Object.entries(errors);
 
-  if (completed) {
+  if (reference) {
     return (
       <div className="rounded-2xl border border-travel-border bg-travel-background p-5 shadow-sm sm:p-8">
         <h2
@@ -130,28 +164,25 @@ export default function QuoteStepper({
           tabIndex={-1}
           className="scroll-mt-24 text-2xl font-semibold tracking-tight text-travel-primary-dark"
         >
-          Tu solicitud está completa
+          Tu solicitud fue enviada
         </h2>
+        {/* Refuerza el anuncio del cambio de foco para lectores de pantalla que no lo capten con el <h2>. */}
+        <p role="status" aria-live="polite" className="sr-only">
+          Solicitud enviada. Número de referencia {reference}.
+        </p>
         <p className="mt-3 text-travel-text">
-          Revisamos que todos los datos estén bien. Todavía no hay un canal de recepción conectado, por eso tu
-          solicitud <strong>no se guardó ni se envió</strong>: cuando esté habilitado podrás enviarla desde aquí.
+          Guardamos tu solicitud con el número <strong>{reference}</strong>. Nuestro equipo la revisará y te
+          contactará por el medio que elegiste. Guarda este número por si necesitas hacer referencia a tu solicitud.
         </p>
         <div className="mt-6">
           <QuoteSummary sections={summary} />
         </div>
         <div className="mt-8 flex flex-col gap-3 sm:flex-row">
-          <button
-            type="button"
-            onClick={() => {
-              setCompleted(false);
-              requestFocus("heading");
-            }}
-            className={buttonStyles.outline}
-          >
-            Volver a editar
-          </button>
           <Link href="/" className={buttonStyles.secondary}>
-            Ir al inicio
+            Volver al inicio
+          </Link>
+          <Link href="/destinations" className={buttonStyles.outline}>
+            Explorar destinos
           </Link>
         </div>
       </div>
@@ -159,6 +190,13 @@ export default function QuoteStepper({
   }
 
   const isLast = step === quoteSteps.length - 1;
+  const submitLabel = !isLast
+    ? "Siguiente"
+    : isSubmitting
+      ? "Enviando…"
+      : submitError
+        ? "Reintentar"
+        : "Finalizar solicitud";
 
   return (
     <div className="rounded-2xl border border-travel-border bg-travel-background p-5 shadow-sm sm:p-8">
@@ -184,8 +222,9 @@ export default function QuoteStepper({
                   <button
                     type="button"
                     onClick={() => goTo(index)}
+                    disabled={isSubmitting}
                     aria-label={`Ir al paso ${index + 1}: ${item.title}`}
-                    className="flex flex-col items-center gap-1 rounded-md text-travel-primary"
+                    className="flex flex-col items-center gap-1 rounded-md text-travel-primary disabled:cursor-not-allowed disabled:opacity-60"
                   >
                     <span className={circle}>{index + 1}</span>
                     {title}
@@ -249,6 +288,22 @@ export default function QuoteStepper({
           </div>
         )}
 
+        {errorEntries.length === 0 && submitError && (
+          <div
+            ref={errorsRef}
+            role="alert"
+            tabIndex={-1}
+            className="mt-4 scroll-mt-24 rounded-xl border border-travel-danger bg-travel-background p-4"
+          >
+            <p className="font-semibold text-travel-danger">{submitError}</p>
+          </div>
+        )}
+
+        {/* Anuncio para quien usa lector de pantalla mientras se envía; el botón ya cambia de texto para quien ve la pantalla. */}
+        <p role="status" aria-live="polite" className="sr-only">
+          {isSubmitting ? "Enviando tu solicitud…" : ""}
+        </p>
+
         <div className="mt-6">
           {current.id === "tipo" && <TipoStep {...stepProps} />}
           {current.id === "destino" && <DestinoStep {...stepProps} />}
@@ -268,14 +323,23 @@ export default function QuoteStepper({
 
         <div className="mt-8 flex flex-col-reverse gap-3 sm:flex-row sm:justify-between">
           {step > 0 ? (
-            <button type="button" onClick={() => goTo(step - 1)} className={buttonStyles.outline}>
+            <button
+              type="button"
+              onClick={() => goTo(step - 1)}
+              disabled={isSubmitting}
+              className={`${buttonStyles.outline} disabled:cursor-not-allowed disabled:opacity-60`}
+            >
               Anterior
             </button>
           ) : (
             <span />
           )}
-          <button type="submit" className={buttonStyles.secondary}>
-            {isLast ? "Finalizar solicitud" : "Siguiente"}
+          <button
+            type="submit"
+            disabled={isSubmitting}
+            className={`${buttonStyles.secondary} disabled:cursor-not-allowed disabled:opacity-60`}
+          >
+            {submitLabel}
           </button>
         </div>
       </form>

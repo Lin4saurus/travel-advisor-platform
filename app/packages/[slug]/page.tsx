@@ -4,6 +4,7 @@ import Breadcrumb from "@/components/Breadcrumb";
 import PackageCard from "@/components/PackageCard";
 import Section from "@/components/Section";
 import PackageGallery from "@/components/packages/PackageGallery";
+import BulletList from "@/components/ui/BulletList";
 import { buttonStyles } from "@/components/ui/buttons";
 import {
   availabilityLabels,
@@ -37,22 +38,6 @@ function DetailSection({ id, title, children }: { id: string; title: string; chi
       </h2>
       <div className="mt-4">{children}</div>
     </section>
-  );
-}
-
-function BulletList({ items, marker }: { items: string[]; marker: "check" | "dot" }) {
-  return (
-    <ul className="space-y-2 text-travel-text">
-      {items.map((item) => (
-        <li key={item} className="flex gap-3">
-          <span
-            aria-hidden="true"
-            className={`mt-2 size-2 shrink-0 rounded-full ${marker === "check" ? "bg-travel-success" : "bg-travel-muted"}`}
-          />
-          <span>{item}</span>
-        </li>
-      ))}
-    </ul>
   );
 }
 

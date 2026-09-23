@@ -108,6 +108,17 @@ export default function Footer() {
         </div>
       </div>
 
+      <div className="border-t border-travel-border bg-travel-background">
+        <p className="mx-auto w-full max-w-6xl px-4 py-4 text-xs text-travel-muted sm:px-6">
+          Precios, fechas y disponibilidad son referenciales y se confirman en tu cotización; las imágenes son
+          ilustrativas. Los cambios y las cancelaciones pueden generar penalidades según cada proveedor. Ver{" "}
+          <Link href="/terms" className={linkClass}>
+            términos y condiciones
+          </Link>
+          .
+        </p>
+      </div>
+
       <div className="border-t border-travel-border">
         <p className="mx-auto w-full max-w-6xl px-4 py-5 text-sm text-travel-muted sm:px-6">
           © {new Date().getFullYear()} {siteConfig.name}. Todos los derechos

@@ -492,8 +492,8 @@ export function ConfirmacionStep({
       <div className="rounded-xl bg-travel-accent-light p-4 text-sm text-travel-text">
         <p className="font-semibold">Antes de finalizar</p>
         <p className="mt-1">
-          Este formulario todavía no está conectado a un canal de recepción: al finalizar no se guarda ni se envía
-          ninguna información.
+          Revisa que los datos sean correctos: al finalizar, guardamos tu solicitud y te damos un número de
+          referencia para que puedas mencionarlo si necesitas contactarnos por otra vía.
         </p>
       </div>
 
