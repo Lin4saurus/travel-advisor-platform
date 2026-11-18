@@ -67,9 +67,11 @@ export default async function KioskSectionPage(props: PageProps<"/kiosco/[seccio
   const active = typeof filtro === "string" && filters.some((filter) => filter.value === filtro) ? filtro : undefined;
   const shown = active ? cards.filter((card) => card.filters.includes(active)) : cards;
 
+  // Borde real (`border-2`) y no `ring`: el `ring` es una sombra que se dibuja fuera de la caja y un contenedor
+  // con desbordamiento la recortaba (se veía el filtro sin su contorno arriba y abajo).
   const chip = (selected: boolean) =>
-    `inline-flex min-h-14 items-center rounded-full px-6 text-lg font-semibold whitespace-nowrap ${
-      selected ? "bg-travel-primary text-white" : "bg-travel-background text-travel-primary ring-2 ring-travel-primary"
+    `inline-flex min-h-14 items-center rounded-full border-2 border-travel-primary px-6 text-lg font-semibold whitespace-nowrap ${
+      selected ? "bg-travel-primary text-white" : "bg-travel-background text-travel-primary"
     }`;
 
   return (
@@ -80,8 +82,10 @@ export default async function KioskSectionPage(props: PageProps<"/kiosco/[seccio
       </div>
 
       {filters.length > 1 && (
-        <nav aria-label="Filtrar" className="-mx-6 overflow-x-auto px-6 pb-2">
-          <ul className="flex gap-3">
+        // Varias filas en vez de una franja con desplazamiento horizontal: en una pantalla táctil todos los
+        // filtros quedan a la vista y no aparece una barra de desplazamiento.
+        <nav aria-label="Filtrar">
+          <ul className="flex flex-wrap gap-3">
             <li>
               <Link href={kioskHref(section.id)} aria-current={!active ? "page" : undefined} className={chip(!active)}>
                 Todos
