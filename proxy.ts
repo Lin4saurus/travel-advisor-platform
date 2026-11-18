@@ -8,15 +8,18 @@
 //    debe ser la única barrera.
 import { NextResponse, type NextRequest } from "next/server";
 import { createServerClient } from "@supabase/ssr";
+import { supabasePublicEnv } from "@/lib/supabase/env";
 import type { Database } from "@/lib/supabase/types";
 
 export async function proxy(request: NextRequest) {
   let response = NextResponse.next({ request });
 
-  const supabase = createServerClient<Database>(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-    {
+  // Sin las variables de Supabase no hay sesión posible: se trata como "sin sesión" (falla cerrado) en vez de
+  // lanzar una excepción, que en Vercel daba un 500 en todo /admin.
+  const env = supabasePublicEnv();
+  let hasUser = false;
+  if (env) {
+    const supabase = createServerClient<Database>(env.url, env.anonKey, {
       cookies: {
         getAll() {
           return request.cookies.getAll();
@@ -28,16 +31,15 @@ export async function proxy(request: NextRequest) {
           for (const [key, value] of Object.entries(headers ?? {})) response.headers.set(key, value);
         },
       },
-    },
-  );
+    });
 
-  let hasUser = false;
-  try {
-    const { data } = await supabase.auth.getUser();
-    hasUser = Boolean(data.user);
-  } catch (error) {
-    // Supabase caído o inalcanzable: se trata como "sin sesión" (falla cerrado).
-    console.error("[proxy] no se pudo comprobar la sesión:", error);
+    try {
+      const { data } = await supabase.auth.getUser();
+      hasUser = Boolean(data.user);
+    } catch (error) {
+      // Supabase caído o inalcanzable: se trata como "sin sesión" (falla cerrado).
+      console.error("[proxy] no se pudo comprobar la sesión:", error);
+    }
   }
 
   const { pathname, search } = request.nextUrl;

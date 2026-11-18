@@ -10,8 +10,16 @@
 // node_modules/next/dist/docs/01-app/02-guides/authentication.md y data-security.md.
 import "server-only";
 import { cache } from "react";
+import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
+import { supabasePublicEnv } from "@/lib/supabase/env";
 import { createClient } from "@/lib/supabase/server";
+
+// ¿Está el panel configurado en este servidor? (variables de Supabase + al menos un correo admin). Solo para
+// mostrar un aviso en el login; no revela qué falta (eso va al log).
+export function adminConfigured(): boolean {
+  return Boolean(supabasePublicEnv() && process.env.SUPABASE_SERVICE_ROLE_KEY && adminEmails().length > 0);
+}
 
 export type AdminUser = { id: string; email: string };
 
@@ -31,8 +39,11 @@ export function isAdminEmail(email: string | null | undefined): boolean {
 // cookie y se podría falsificar. `cache` evita repetir esa consulta si el layout y la página la piden en el mismo
 // render.
 export const getAdminUser = cache(async (): Promise<AdminUser | null> => {
-  // Fuera del try a propósito: `cookies()` (dentro de `createClient`) lanza una señal interna de Next para marcar
-  // la página como dinámica durante el build; atraparla la convertiría en un falso error.
+  // Fuera del try a propósito: `cookies()` lanza una señal interna de Next para marcar la página como dinámica
+  // durante el build; atraparla la convertiría en un falso error. Se llama antes de mirar las variables para que la
+  // página siga siendo dinámica aunque falten.
+  await cookies();
+  if (!supabasePublicEnv()) return null;
   const supabase = await createClient();
   try {
     const { data, error } = await supabase.auth.getUser();
