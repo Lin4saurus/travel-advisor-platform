@@ -15,19 +15,28 @@ import {
   includeLabels,
   recommendations,
 } from "@/config/packages";
-import { destinations } from "@/data/destinations";
-import { packages } from "@/data/packages";
+import type { Metadata } from "next";
+import { getCatalog } from "@/lib/catalog/read";
+import { metaDescription, pageMetadata } from "@/lib/seo";
 import { formatDate, formatDuration, formatPrice } from "@/lib/format";
 import { relatedPackages } from "@/lib/packages";
 import type { ReactNode } from "react";
 
-// Solo se sirven los paquetes de `data/packages.ts`; cualquier otro slug responde 404 sin renderizar.
-// No quitar: con `dynamicParams` en su valor por defecto Next escribe archivos en disco por cada slug
-// inventado (ver el mismo patrón, medido, en `app/destinations/[slug]/page.tsx`).
-export const dynamicParams = false;
+// Sin prerender desde M12 (los paquetes se crean en el panel): ver el comentario de `dynamic` en
+// `app/destinations/[slug]/page.tsx`.
+export const dynamic = "force-dynamic";
 
-export function generateStaticParams() {
-  return packages.map(({ slug }) => ({ slug }));
+// Canónica con el slug real en minúsculas (ver app/destinations/[slug]/page.tsx).
+export async function generateMetadata(props: PageProps<"/packages/[slug]">): Promise<Metadata> {
+  const slug = (await props.params).slug.toLowerCase();
+  const pkg = (await getCatalog()).packages.find((item) => item.slug === slug);
+  if (!pkg) return {};
+  return pageMetadata({
+    title: pkg.destination ? `${pkg.name} (${pkg.destination})` : pkg.name,
+    description: metaDescription(pkg.summary, pkg.description),
+    path: `/packages/${pkg.slug}`,
+    image: pkg.image,
+  });
 }
 
 function DetailSection({ id, title, children }: { id: string; title: string; children: ReactNode }) {
@@ -43,8 +52,8 @@ function DetailSection({ id, title, children }: { id: string; title: string; chi
 
 export default async function PackagePage(props: PageProps<"/packages/[slug]">) {
   const { slug } = await props.params;
-  // Next resuelve las rutas prerenderizadas sin distinguir mayúsculas: comparar en minúsculas evita que
-  // una variante como /packages/CARTAGENA-CARIBE dispare notFound() y sobrescriba el HTML prerenderizado.
+  // En minúsculas: /packages/CARTAGENA-CARIBE muestra el mismo paquete (la URL canónica queda para M13).
+  const { destinations, packages } = await getCatalog();
   const pkg = packages.find((item) => item.slug === slug.toLowerCase());
   if (!pkg) notFound();
 

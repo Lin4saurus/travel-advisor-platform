@@ -5,8 +5,20 @@ import ActiveFilters from "@/components/packages/ActiveFilters";
 import FilterForm from "@/components/packages/FilterForm";
 import MobileFilterDrawer from "@/components/packages/MobileFilterDrawer";
 import { buttonStyles } from "@/components/ui/buttons";
-import { destinations } from "@/data/destinations";
-import { packages } from "@/data/packages";
+import { getCatalog } from "@/lib/catalog/read";
+import { hasQuery, pageMetadata } from "@/lib/seo";
+
+// Cada combinación de filtros es una vista de la misma lista: canónica a /packages y sin indexar (evita miles de
+// URLs casi iguales o vacías en los buscadores).
+export async function generateMetadata(props: PageProps<"/packages">) {
+  return pageMetadata({
+    title: "Paquetes de viaje",
+    description:
+      "Paquetes de viaje a destinos nacionales e internacionales. Filtra por destino, tipo de viaje y duración, o pide una cotización personalizada.",
+    path: "/packages",
+    noindex: hasQuery(await props.searchParams),
+  });
+}
 import { activeFilters, applyQuery, getFacets, parseQuery, quoteHref } from "@/lib/packages";
 
 function countText(shown: number, total: number) {
@@ -19,6 +31,7 @@ function countText(shown: number, total: number) {
 // de la Home son enlaces compartibles y los filtros funcionan sin JavaScript.
 export default async function PackagesPage(props: PageProps<"/packages">) {
   const query = parseQuery(await props.searchParams);
+  const { destinations, packages } = await getCatalog();
   const facets = getFacets(packages);
   const { results, preferences } = applyQuery(packages, query, facets);
   const filterCount = activeFilters(query).length;

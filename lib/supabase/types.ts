@@ -10,8 +10,23 @@
 export type QuoteRequestType = "a-medida" | "paquete" | "experiencia" | "evento";
 export type QuoteItemType = "paquete" | "experiencia" | "evento";
 
-// Buckets del dashboard de M12 ("cotizaciones nuevas/en revisión/enviadas"); toda cotización nace 'Nueva'.
-export type QuoteStatus = "Nueva" | "En revisión" | "Enviada";
+// Flujo de una cotización en el panel admin (M12), en orden; toda cotización nace 'Nueva'. Debe coincidir con el
+// `check` de `travel_quotes.status` en `supabase/schema.sql` (y `supabase/migrations/m12-quote-statuses.sql`).
+export const QUOTE_STATUSES = [
+  "Nueva",
+  "En revisión",
+  "Contactado",
+  "Propuesta enviada",
+  "Confirmada",
+  "Cerrada",
+  "Cancelada",
+] as const;
+
+export type QuoteStatus = (typeof QUOTE_STATUSES)[number];
+
+export function isQuoteStatus(value: unknown): value is QuoteStatus {
+  return typeof value === "string" && (QUOTE_STATUSES as readonly string[]).includes(value);
+}
 
 export type TravelQuote = {
   id: string;
@@ -110,6 +125,23 @@ type TravelQuoteInsert = Omit<
 
 type TravelQuoteItemInsert = Omit<TravelQuoteItemRow, "id" | "created_at">;
 
+// Catálogo editable (M12 fase 2, `supabase/migrations/m12-catalog.sql`). `data` es JSONB con la forma de los
+// tipos de `data/*.ts`; se valida con `lib/catalog/normalize.ts` al leer y al guardar.
+export type CatalogStatus = "draft" | "published" | "archived";
+
+export type CatalogItemRow = {
+  id: string;
+  kind: "packages" | "destinations" | "experiences" | "events";
+  slug: string;
+  status: CatalogStatus;
+  sort_order: number;
+  data: Record<string, unknown>;
+  created_at: string;
+  updated_at: string;
+};
+
+type CatalogItemInsert = Omit<CatalogItemRow, "id" | "created_at" | "updated_at">;
+
 // Forma mínima que espera `@supabase/supabase-js`/`@supabase/ssr` para tipar `.from(...)`. `Relationships` (y
 // `Views`/`Functions` del esquema) son obligatorios para el tipo `GenericTable`/`GenericSchema` interno del
 // paquete aunque acá no se use ningún `.select()` con relaciones embebidas; se dejan vacíos porque no hay ninguna
@@ -128,6 +160,12 @@ export type Database = {
         Row: TravelQuoteItemRow;
         Insert: TravelQuoteItemInsert;
         Update: Partial<TravelQuoteItemRow>;
+        Relationships: [];
+      };
+      catalog_items: {
+        Row: CatalogItemRow;
+        Insert: CatalogItemInsert;
+        Update: Partial<CatalogItemInsert>;
         Relationships: [];
       };
     };

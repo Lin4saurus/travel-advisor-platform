@@ -112,7 +112,8 @@ export default function Footer() {
         <p className="mx-auto w-full max-w-6xl px-4 py-4 text-xs text-travel-muted sm:px-6">
           Precios, fechas y disponibilidad son referenciales y se confirman en tu cotización; las imágenes son
           ilustrativas. Los cambios y las cancelaciones pueden generar penalidades según cada proveedor. Ver{" "}
-          <Link href="/terms" className={linkClass}>
+          {/* Subrayado siempre: dentro de un párrafo, el color solo no basta para distinguir el enlace (WCAG 1.4.1). */}
+          <Link href="/terms" className={`${linkClass} underline`}>
             términos y condiciones
           </Link>
           .

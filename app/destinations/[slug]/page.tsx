@@ -4,29 +4,47 @@ import NationalOverview, { NATIONAL_OVERVIEW_SLUG } from "@/components/destinati
 import SafeImage from "@/components/ui/SafeImage";
 import { buttonStyles } from "@/components/ui/buttons";
 import { categories, type TravelCategory } from "@/data/categories";
-import { destinations } from "@/data/destinations";
+import type { Metadata } from "next";
+import { getCatalog } from "@/lib/catalog/read";
+import { metaDescription, pageMetadata } from "@/lib/seo";
 
-// Solo se sirven los destinos de `data/destinations.ts`; cualquier otro slug responde 404 sin renderizar.
-// No quitar: con `dynamicParams` en su valor por defecto Next escribe en disco (`.next/server/app/...`) un
-// .html/.meta/.rsc por cada slug inventado (medido), y las peticiones al azar llenarían el disco de 404.
-// Contrapartida conocida: el servidor registra "Error: Internal: NoFallbackError" por cada slug inexistente;
-// el código HTTP sigue siendo 404 y es solo ruido de log.
-export const dynamicParams = false;
+// Desde M12 los destinos se crean en el panel: un slug nuevo tiene que funcionar sin volver a compilar, así que
+// esta página ya no se prerenderiza (`generateStaticParams` + `dynamicParams = false` habrían dado 404 a todo lo
+// nuevo). Se renderiza en cada visita con el catálogo cacheado (lib/catalog/read.ts), y como no hay HTML
+// prerenderizado en disco, un `notFound()` ya no puede sobrescribir una página válida (el problema de las
+// variantes en mayúsculas que documentaba CLAUDE.md) ni escribir archivos por cada slug inventado.
+export const dynamic = "force-dynamic";
 
-export function generateStaticParams() {
-  return destinations.map(({ slug }) => ({ slug }));
+// La canónica usa el slug real (en minúsculas): /destinations/CARTAGENA muestra la misma página, pero los
+// buscadores la atribuyen a /destinations/cartagena (pendiente detectado en M3).
+export async function generateMetadata(props: PageProps<"/destinations/[slug]">): Promise<Metadata> {
+  const slug = (await props.params).slug.toLowerCase();
+  if (slug === NATIONAL_OVERVIEW_SLUG) {
+    return pageMetadata({
+      title: "Viajes nacionales: Bolivia",
+      description: "Salares, selva, valles y ciudades con historia: destinos y paquetes para viajar por Bolivia.",
+      path: "/destinations/bolivia",
+    });
+  }
+  const destination = (await getCatalog()).destinations.find((item) => item.slug === slug);
+  if (!destination) return {};
+  return pageMetadata({
+    title: destination.location ? `${destination.name}, ${destination.location}` : destination.name,
+    description: metaDescription(destination.summary, destination.description),
+    path: `/destinations/${destination.slug}`,
+    image: destination.image,
+  });
 }
 
 export default async function DestinationPage(
   props: PageProps<"/destinations/[slug]">,
 ) {
   const { slug } = await props.params;
-  // Next resuelve las rutas prerenderizadas sin distinguir mayúsculas (/destinations/CARTAGENA llega aquí
-  // con slug "CARTAGENA"). Si se llamara a notFound() por eso, Next guardaría ese 404 en disco encima de la
-  // página prerenderizada de /destinations/cartagena y la dejaría rota hasta el siguiente build.
-  // Lo mismo pasa con la ruta estática hermana /destinations/bolivia: /destinations/Bolivia llega aquí y su 404
-  // sobrescribía bolivia.html (medido: 70 KB → 12 KB). Se renderiza la misma página en vez de dar 404.
+  // /destinations/Bolivia (u otra variante en mayúsculas) llega aquí y no a la ruta estática hermana
+  // /destinations/bolivia: se muestra la misma página en vez de un 404. Por eso "bolivia" está reservado como
+  // slug de destino en el panel.
   if (slug.toLowerCase() === NATIONAL_OVERVIEW_SLUG) return <NationalOverview />;
+  const { destinations } = await getCatalog();
   const destination = destinations.find((item) => item.slug === slug.toLowerCase());
   if (!destination) notFound();
 

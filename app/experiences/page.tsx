@@ -3,7 +3,21 @@ import CategoryNav from "@/components/CategoryNav";
 import ExperienceCard from "@/components/ExperienceCard";
 import PageHeader from "@/components/PageHeader";
 import { buttonStyles } from "@/components/ui/buttons";
-import { experienceCategories, experiences } from "@/data/experiences";
+import { experienceCategories } from "@/data/experiences";
+import { getCatalog } from "@/lib/catalog/read";
+import { hasQuery, pageMetadata } from "@/lib/seo";
+
+// Un filtro de categoría es una vista de la misma lista: canónica a /experiences y sin indexar.
+export async function generateMetadata(props: PageProps<"/experiences">) {
+  return pageMetadata({
+    title: "Experiencias y excursiones",
+    description:
+      "Suma actividades a tu viaje: visitas guiadas, paseos en barco, museos, naturaleza y más. Consulta disponibilidad y condiciones.",
+    path: "/experiences",
+    image: "/images/experiences/visita-guiada.jpg",
+    noindex: hasQuery(await props.searchParams),
+  });
+}
 import {
   categoryCounts,
   experiencesHref,
@@ -18,6 +32,7 @@ function countText(shown: number) {
 // Se filtra en el servidor a partir de la URL (?category=<slug>): los enlaces son compartibles.
 export default async function ExperiencesPage(props: PageProps<"/experiences">) {
   const category = parseCategory(await props.searchParams);
+  const { experiences } = await getCatalog();
   const results = filterExperiences(experiences, category);
   const counts = categoryCounts(experiences);
   const activeName = experienceCategories.find((item) => item.slug === category)?.name;

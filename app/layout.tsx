@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import Footer from "@/components/Footer";
 import Header from "@/components/Header";
+import HideOnAdmin from "@/components/HideOnAdmin";
+import { DEFAULT_OG_IMAGE, siteUrl } from "@/lib/seo";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -14,10 +16,18 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
+// Valores por defecto de todo el sitio; cada página define los suyos con `pageMetadata` (lib/seo.ts).
 export const metadata: Metadata = {
-  title: "Mundo Viajero | Asesoría, cotización y venta de viajes",
+  metadataBase: siteUrl(),
+  title: {
+    default: "Mundo Viajero | Asesoría, cotización y venta de viajes",
+    template: "%s | Mundo Viajero",
+  },
   description:
     "Asesoría personalizada, cotización y venta de viajes: destinos, paquetes, experiencias y eventos, en Bolivia y el mundo.",
+  applicationName: "Mundo Viajero",
+  openGraph: { siteName: "Mundo Viajero", locale: "es_BO", type: "website", images: [DEFAULT_OG_IMAGE] },
+  formatDetection: { telephone: false, email: false, address: false },
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
@@ -27,9 +37,13 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col">
-        <Header />
+        <HideOnAdmin>
+          <Header />
+        </HideOnAdmin>
         {children}
-        <Footer />
+        <HideOnAdmin>
+          <Footer />
+        </HideOnAdmin>
       </body>
     </html>
   );

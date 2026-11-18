@@ -11,10 +11,20 @@ import TripSearchForm from "@/components/home/TripSearchForm";
 import SafeImage from "@/components/ui/SafeImage";
 import { buttonStyles } from "@/components/ui/buttons";
 import { categories } from "@/data/categories";
-import { destinations } from "@/data/destinations";
-import { events } from "@/data/events";
-import { experiences } from "@/data/experiences";
-import { packages } from "@/data/packages";
+import { getCatalog } from "@/lib/catalog/read";
+import { pageMetadata } from "@/lib/seo";
+
+export const metadata = pageMetadata({
+  title: "Mundo Viajero | Asesoría, cotización y venta de viajes",
+  description:
+    "Asesoría personalizada, cotización y venta de viajes: destinos, paquetes, experiencias y eventos, en Bolivia y el mundo.",
+  path: "/",
+  absoluteTitle: true,
+});
+
+// El catálogo vive en Supabase (M12): la página estática se regenera como mucho cada 5 minutos, y antes si el
+// panel guarda un cambio (invalida la etiqueta del catálogo).
+export const revalidate = 300;
 
 const benefits = [
   {
@@ -37,14 +47,24 @@ const benefits = [
 
 const gridClass = "grid gap-6 sm:grid-cols-2";
 
-export default function Home() {
-  const internationalDestinations = destinations.filter(
-    (destination) => destination.scope === "international" && destination.featured,
+function pickFeatured<T extends { featured: boolean }>(items: T[], limit: number): T[] {
+  const featured = items.filter((item) => item.featured);
+  return (featured.length > 0 ? featured : items).slice(0, limit);
+}
+
+export default async function Home() {
+  const catalog = await getCatalog();
+  const { destinations } = catalog;
+  // Muestras acotadas: con el catálogo editable desde el panel (M12) las listas pueden crecer. Si nada está
+  // marcado como destacado, se muestran los primeros; una sección sin elementos no se pinta (M13).
+  const internationalDestinations = pickFeatured(
+    destinations.filter((destination) => destination.scope === "international"),
+    8,
   );
-  const nationalDestinations = destinations.filter(
-    (destination) => destination.scope === "national",
-  );
-  const featuredExperiences = experiences.filter((experience) => experience.featured);
+  const nationalDestinations = destinations.filter((destination) => destination.scope === "national").slice(0, 10);
+  const packages = pickFeatured(catalog.packages, 6);
+  const featuredExperiences = pickFeatured(catalog.experiences, 4);
+  const events = catalog.events.slice(0, 3);
 
   return (
     <main className="flex-1">
@@ -65,52 +85,58 @@ export default function Home() {
         </ul>
       </Section>
 
-      <Section
-        id="destinos"
-        title="Destinos destacados"
-        description="Lugares del mundo para inspirar tu próxima escapada."
-        action={{ label: "Ver todos los destinos", href: "/destinations" }}
-        tone="surface"
-      >
-        <ul className="grid grid-cols-2 gap-4 sm:gap-6 lg:grid-cols-4">
-          {internationalDestinations.map((destination) => (
-            <li key={destination.slug}>
-              <DestinationCard destination={destination} />
-            </li>
-          ))}
-        </ul>
-      </Section>
+      {internationalDestinations.length > 0 && (
+        <Section
+          id="destinos"
+          title="Destinos destacados"
+          description="Lugares del mundo para inspirar tu próxima escapada."
+          action={{ label: "Ver todos los destinos", href: "/destinations" }}
+          tone="surface"
+        >
+          <ul className="grid grid-cols-2 gap-4 sm:gap-6 lg:grid-cols-4">
+            {internationalDestinations.map((destination) => (
+              <li key={destination.slug}>
+                <DestinationCard destination={destination} />
+              </li>
+            ))}
+          </ul>
+        </Section>
+      )}
 
-      <Section
-        id="paquetes"
-        title="Paquetes recomendados"
-        description="Ejemplos de paquetes. Escríbenos y los ajustamos a tus fechas y a tu presupuesto."
-        action={{ label: "Ver todos los paquetes", href: "/packages" }}
-      >
-        <ul className={`${gridClass} lg:grid-cols-3`}>
-          {packages.map((pkg) => (
-            <li key={pkg.slug}>
-              <PackageCard pkg={pkg} />
-            </li>
-          ))}
-        </ul>
-      </Section>
+      {packages.length > 0 && (
+        <Section
+          id="paquetes"
+          title="Paquetes recomendados"
+          description="Ejemplos de paquetes. Escríbenos y los ajustamos a tus fechas y a tu presupuesto."
+          action={{ label: "Ver todos los paquetes", href: "/packages" }}
+        >
+          <ul className={`${gridClass} lg:grid-cols-3`}>
+            {packages.map((pkg) => (
+              <li key={pkg.slug}>
+                <PackageCard pkg={pkg} />
+              </li>
+            ))}
+          </ul>
+        </Section>
+      )}
 
-      <Section
-        id="experiencias"
-        title="Experiencias y excursiones"
-        description="Suma actividades a tu viaje: paseos, visitas guiadas y más."
-        action={{ label: "Ver todas las experiencias", href: "/experiences" }}
-        tone="surface"
-      >
-        <ul className={`${gridClass} lg:grid-cols-4`}>
-          {featuredExperiences.map((experience) => (
-            <li key={experience.slug}>
-              <ExperienceCard experience={experience} />
-            </li>
-          ))}
-        </ul>
-      </Section>
+      {featuredExperiences.length > 0 && (
+        <Section
+          id="experiencias"
+          title="Experiencias y excursiones"
+          description="Suma actividades a tu viaje: paseos, visitas guiadas y más."
+          action={{ label: "Ver todas las experiencias", href: "/experiences" }}
+          tone="surface"
+        >
+          <ul className={`${gridClass} lg:grid-cols-4`}>
+            {featuredExperiences.map((experience) => (
+              <li key={experience.slug}>
+                <ExperienceCard experience={experience} />
+              </li>
+            ))}
+          </ul>
+        </Section>
+      )}
 
       <Section
         id="beneficios"
@@ -138,41 +164,49 @@ export default function Home() {
         </ul>
       </Section>
 
-      <Section
-        id="eventos"
-        title="Eventos y conciertos"
-        description="Ejemplos ilustrativos. Consulta por artistas, fechas y entradas disponibles."
-        action={{ label: "Ver todos los eventos", href: "/events" }}
-        tone="surface"
-      >
-        <ul className={`${gridClass} lg:grid-cols-3`}>
-          {events.map((event) => (
-            <li key={event.slug}>
-              <EventCard event={event} />
-            </li>
-          ))}
-        </ul>
-      </Section>
+      {events.length > 0 && (
+        <Section
+          id="eventos"
+          title="Eventos y conciertos"
+          description={
+            events.some((event) => event.isExample)
+              ? "Ejemplos ilustrativos. Consulta por artistas, fechas y entradas disponibles."
+              : "Consulta por fechas y entradas disponibles."
+          }
+          action={{ label: "Ver todos los eventos", href: "/events" }}
+          tone="surface"
+        >
+          <ul className={`${gridClass} lg:grid-cols-3`}>
+            {events.map((event) => (
+              <li key={event.slug}>
+                <EventCard event={event} />
+              </li>
+            ))}
+          </ul>
+        </Section>
+      )}
 
-      <Section
-        id="nacionales"
-        title="Destinos nacionales"
-        description="Descubre Bolivia: salares, selva, valles y ciudades con historia."
-        action={{ label: "Ver viajes por Bolivia", href: "/destinations/bolivia" }}
-        tone="sand"
-      >
-        <ul className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-5">
-          {nationalDestinations.map((destination) => (
-            <li key={destination.slug}>
-              <DestinationCard
-                destination={destination}
-                variant="compact"
-                note="Consulta fechas recomendadas"
-              />
-            </li>
-          ))}
-        </ul>
-      </Section>
+      {nationalDestinations.length > 0 && (
+        <Section
+          id="nacionales"
+          title="Destinos nacionales"
+          description="Descubre Bolivia: salares, selva, valles y ciudades con historia."
+          action={{ label: "Ver viajes por Bolivia", href: "/destinations/bolivia" }}
+          tone="sand"
+        >
+          <ul className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-5">
+            {nationalDestinations.map((destination) => (
+              <li key={destination.slug}>
+                <DestinationCard
+                  destination={destination}
+                  variant="compact"
+                  note="Consulta fechas recomendadas"
+                />
+              </li>
+            ))}
+          </ul>
+        </Section>
+      )}
 
       <section
         aria-labelledby="newsletter-title"

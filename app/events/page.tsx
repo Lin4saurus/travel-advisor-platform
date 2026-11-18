@@ -3,8 +3,22 @@ import CategoryNav from "@/components/CategoryNav";
 import EventCard from "@/components/EventCard";
 import PageHeader from "@/components/PageHeader";
 import { buttonStyles } from "@/components/ui/buttons";
-import { eventCategories, events } from "@/data/events";
+import { eventCategories } from "@/data/events";
+import { getCatalog } from "@/lib/catalog/read";
 import { eventCategoryCounts, eventsHref, filterEvents, parseEventCategory } from "@/lib/events";
+import { hasQuery, pageMetadata } from "@/lib/seo";
+
+// Un filtro de categoría es una vista de la misma lista: canónica a /events y sin indexar.
+export async function generateMetadata(props: PageProps<"/events">) {
+  return pageMetadata({
+    title: "Eventos, conciertos y entretenimiento",
+    description:
+      "Conciertos, festivales, ferias y parques: consulta por eventos y armamos tu viaje para asistir. Los eventos publicados son ejemplos ilustrativos.",
+    path: "/events",
+    image: "/images/events/festival-musica.jpg",
+    noindex: hasQuery(await props.searchParams),
+  });
+}
 
 function countText(shown: number) {
   return `${shown} ${shown === 1 ? "evento" : "eventos"}`;
@@ -13,6 +27,7 @@ function countText(shown: number) {
 // Se filtra en el servidor a partir de la URL (?category=<slug>): los enlaces son compartibles.
 export default async function EventsPage(props: PageProps<"/events">) {
   const category = parseEventCategory(await props.searchParams);
+  const { events } = await getCatalog();
   const results = filterEvents(events, category);
   const counts = eventCategoryCounts(events);
   const activeName = eventCategories.find((item) => item.slug === category)?.name;

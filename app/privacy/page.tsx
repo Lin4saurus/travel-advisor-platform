@@ -4,8 +4,15 @@ import ContactChannel from "@/components/ContactChannel";
 import PageHeader from "@/components/PageHeader";
 import Section from "@/components/Section";
 import BulletList from "@/components/ui/BulletList";
+import { pageMetadata } from "@/lib/seo";
 
-const linkClass = "rounded-sm text-travel-primary underline-offset-4 hover:underline";
+export const metadata = pageMetadata({
+  title: "Política de privacidad",
+  description: "Qué datos personales recopilamos en Mundo Viajero, para qué los usamos y qué derechos tienes.",
+  path: "/privacy",
+});
+
+const linkClass = "rounded-sm text-travel-primary underline underline-offset-4 hover:decoration-2";
 
 // Política de privacidad (M11). Describe lo que el sitio realmente hace hoy (verificado en M9/M10): qué datos
 // junta el formulario de cotización, dónde quedan y qué no hace todavía (sin cookies de seguimiento, el

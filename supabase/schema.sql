@@ -71,8 +71,10 @@ create table if not exists travel_quotes (
   contact_method text not null,
   accept_privacy boolean not null default false,
 
-  -- Buckets del dashboard de M12 ("cotizaciones nuevas/en revisión/enviadas"). Toda cotización nace 'Nueva'.
-  status text not null default 'Nueva' check (status in ('Nueva', 'En revisión', 'Enviada')),
+  -- Flujo del panel admin (M12). Toda cotización nace 'Nueva'. Una base creada antes de M12 (con solo 'Nueva',
+  -- 'En revisión' y 'Enviada') se actualiza con `supabase/migrations/m12-quote-statuses.sql`.
+  status text not null default 'Nueva'
+    check (status in ('Nueva', 'En revisión', 'Contactado', 'Propuesta enviada', 'Confirmada', 'Cerrada', 'Cancelada')),
 
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now()
@@ -116,6 +118,10 @@ create table if not exists travel_quote_items (
 comment on table travel_quote_items is 'Elementos del catálogo (paquete/experiencia/evento) pedidos en una cotización. Ver lib/supabase/types.ts.';
 
 create index if not exists travel_quote_items_quote_id_idx on travel_quote_items(quote_id);
+
+-- El panel admin (M12) lista y filtra por estado y fecha.
+create index if not exists travel_quotes_status_created_idx on travel_quotes(status, created_at desc);
+create index if not exists travel_quotes_created_idx on travel_quotes(created_at desc);
 
 -- ============================================================================
 -- 5. RLS: cualquier visitante puede CREAR una cotización; nadie puede LEER, EDITAR ni BORRAR de forma pública.

@@ -5,8 +5,15 @@ import PageHeader from "@/components/PageHeader";
 import Section from "@/components/Section";
 import BulletList from "@/components/ui/BulletList";
 import { conditions, importantInfo } from "@/config/packages";
+import { pageMetadata } from "@/lib/seo";
 
-const linkClass = "rounded-sm text-travel-primary underline-offset-4 hover:underline";
+export const metadata = pageMetadata({
+  title: "Términos y condiciones",
+  description: "Condiciones generales de uso del sitio y de las solicitudes de cotización de Mundo Viajero.",
+  path: "/terms",
+});
+
+const linkClass = "rounded-sm text-travel-primary underline underline-offset-4 hover:decoration-2";
 
 // Términos y condiciones (M11). Contenido general y editable: nada de cifras ni penalidades inventadas.
 // Reutiliza `importantInfo`/`conditions` de config/packages.ts (los mismos textos que ya se ven en el detalle de

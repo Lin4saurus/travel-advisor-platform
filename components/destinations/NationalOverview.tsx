@@ -5,8 +5,7 @@ import PackageCard from "@/components/PackageCard";
 import PageHeader from "@/components/PageHeader";
 import Section from "@/components/Section";
 import { buttonStyles } from "@/components/ui/buttons";
-import { destinations } from "@/data/destinations";
-import { packages } from "@/data/packages";
+import { getCatalog } from "@/lib/catalog/read";
 
 // Segmento de URL de la página de viajes nacionales. Es una ruta estática hermana de `[slug]`; ver
 // `app/destinations/[slug]/page.tsx` para saber por qué esa página también la renderiza.
@@ -14,7 +13,8 @@ export const NATIONAL_OVERVIEW_SLUG = "bolivia";
 
 // Viajes nacionales. Sin temporadas, fechas ni precios propios: cada destino remite a "Consulta fechas
 // recomendadas" y los paquetes muestran lo que tengan confirmado (o "Consultar precio").
-export default function NationalOverview() {
+export default async function NationalOverview() {
+  const { destinations, packages } = await getCatalog();
   const nationalDestinations = destinations.filter((destination) => destination.scope === "national");
   // "Bolivia" es la región comercial de `data/packages.ts` (filtro "Región" de /packages).
   const boliviaPackages = packages.filter((pkg) => pkg.region === "Bolivia");
@@ -45,13 +45,21 @@ export default function NationalOverview() {
         title="Destinos de Bolivia"
         description="Elige un destino para ver su descripción y pedir una cotización."
       >
-        <ul className="grid grid-cols-2 gap-4 sm:gap-6 lg:grid-cols-4">
-          {nationalDestinations.map((destination) => (
-            <li key={destination.slug}>
-              <DestinationCard destination={destination} note="Consulta fechas recomendadas" />
-            </li>
-          ))}
-        </ul>
+        {nationalDestinations.length > 0 ? (
+          <ul className="grid grid-cols-2 gap-4 sm:gap-6 lg:grid-cols-4">
+            {nationalDestinations.map((destination) => (
+              <li key={destination.slug}>
+                <DestinationCard destination={destination} note="Consulta fechas recomendadas" />
+              </li>
+            ))}
+          </ul>
+        ) : (
+          // Catálogo vacío (M13): todo despublicado desde el panel, o todavía sin cargar.
+          <p className="rounded-2xl border border-travel-border bg-travel-background p-8 text-center text-travel-muted">
+            Estamos actualizando los destinos nacionales. Mientras tanto, cuéntanos a dónde quieres ir con el botón de
+            cotización.
+          </p>
+        )}
       </Section>
 
       {boliviaPackages.length > 0 && (

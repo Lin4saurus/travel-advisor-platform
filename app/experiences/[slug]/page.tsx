@@ -7,17 +7,28 @@ import SafeImage from "@/components/ui/SafeImage";
 import { buttonStyles } from "@/components/ui/buttons";
 import { experienceTips } from "@/config/experiences";
 import { availabilityLabels, conditions, importantInfo } from "@/config/packages";
-import { experienceCategories, experiences } from "@/data/experiences";
+import { experienceCategories } from "@/data/experiences";
+import type { Metadata } from "next";
+import { getCatalog } from "@/lib/catalog/read";
+import { metaDescription, pageMetadata } from "@/lib/seo";
 import { experiencesHref, relatedExperiences } from "@/lib/experiences";
 import type { ReactNode } from "react";
 
-// Solo se sirven las experiencias de `data/experiences.ts`; cualquier otro slug responde 404 sin renderizar.
-// No quitar: con `dynamicParams` en su valor por defecto Next escribe archivos en disco por cada slug
-// inventado (ver el mismo patrón, medido, en `app/destinations/[slug]/page.tsx`).
-export const dynamicParams = false;
+// Sin prerender desde M12 (las experiencias se crean en el panel): ver el comentario de `dynamic` en
+// `app/destinations/[slug]/page.tsx`.
+export const dynamic = "force-dynamic";
 
-export function generateStaticParams() {
-  return experiences.map(({ slug }) => ({ slug }));
+// Canónica con el slug real en minúsculas (ver app/destinations/[slug]/page.tsx).
+export async function generateMetadata(props: PageProps<"/experiences/[slug]">): Promise<Metadata> {
+  const slug = (await props.params).slug.toLowerCase();
+  const experience = (await getCatalog()).experiences.find((item) => item.slug === slug);
+  if (!experience) return {};
+  return pageMetadata({
+    title: experience.location ? `${experience.name} en ${experience.location}` : experience.name,
+    description: metaDescription(experience.summary, experience.description),
+    path: `/experiences/${experience.slug}`,
+    image: experience.image,
+  });
 }
 
 function DetailSection({ id, title, children }: { id: string; title: string; children: ReactNode }) {
@@ -49,8 +60,8 @@ function BulletList({ items, marker }: { items: string[]; marker: "check" | "dot
 
 export default async function ExperiencePage(props: PageProps<"/experiences/[slug]">) {
   const { slug } = await props.params;
-  // Next resuelve las rutas prerenderizadas sin distinguir mayúsculas: comparar en minúsculas evita que una
-  // variante como /experiences/VISITA-GUIADA dispare notFound() y sobrescriba el HTML prerenderizado.
+  // En minúsculas: /experiences/VISITA-GUIADA muestra la misma experiencia (la URL canónica queda para M13).
+  const { experiences } = await getCatalog();
   const experience = experiences.find((item) => item.slug === slug.toLowerCase());
   if (!experience) notFound();
 

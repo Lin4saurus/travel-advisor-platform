@@ -121,5 +121,6 @@ export function ChoiceRow({ children, card }: { children: ReactNode; card?: bool
   );
 }
 
-// Estilo de radios y casillas (el color del control sigue la paleta).
-export const choiceInputClass = "mt-0.5 size-5 shrink-0 accent-travel-primary";
+// Estilo de radios y casillas (el color del control sigue la paleta). 24 px: el mínimo de WCAG 2.2 (2.5.8) para
+// un objetivo táctil (con 20 px lo marcó la auditoría de M13).
+export const choiceInputClass = "size-6 shrink-0 accent-travel-primary";

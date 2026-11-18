@@ -2,10 +2,21 @@ import PageHeader from "@/components/PageHeader";
 import QuoteStepper from "@/components/quote/QuoteStepper";
 import { quoteSteps } from "@/config/quote";
 import { buildCatalog, parseQuoteEntry } from "@/lib/quote-entry";
+import { hasQuery, pageMetadata } from "@/lib/seo";
+
+// Con parámetros (formulario precargado desde un paquete, una búsqueda…) es la misma página: sin indexar.
+export async function generateMetadata(props: PageProps<"/quote">) {
+  return pageMetadata({
+    title: "Cotiza tu viaje",
+    description: "Cuéntanos tu destino, fechas, viajeros y presupuesto, y preparamos una propuesta de viaje a tu medida.",
+    path: "/quote",
+    noindex: hasQuery(await props.searchParams),
+  });
+}
 
 // Dinámica: lee los parámetros de la URL (`searchParams`) para precargar el formulario. Contrato en `lib/quote-entry.ts`.
 export default async function QuotePage(props: PageProps<"/quote">) {
-  const catalog = buildCatalog();
+  const catalog = await buildCatalog();
   const { state, notices, prefilled } = parseQuoteEntry(await props.searchParams, catalog);
 
   return (

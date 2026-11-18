@@ -7,7 +7,15 @@ import Section from "@/components/Section";
 import BulletList from "@/components/ui/BulletList";
 import { buttonStyles } from "@/components/ui/buttons";
 
-const linkClass = "rounded-sm text-travel-primary underline-offset-4 hover:underline";
+import { pageMetadata } from "@/lib/seo";
+
+export const metadata = pageMetadata({
+  title: "Información de reservas",
+  description: "Cómo funciona una solicitud de cotización, cómo pedir cambios y qué formas de pago manejamos.",
+  path: "/booking-info",
+});
+
+const linkClass = "rounded-sm text-travel-primary underline underline-offset-4 hover:decoration-2";
 
 // Información de reservas (M11): qué es una solicitud de cotización, cómo pedir cambios, formas de pago y qué
 // datos conviene tener a mano. Contenido general y editable; nada de plazos ni penalidades inventadas.
