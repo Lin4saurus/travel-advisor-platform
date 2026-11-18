@@ -14,7 +14,7 @@ export default async function AdminPanelLayout({ children }: LayoutProps<"/admin
     <>
       <header className="border-b border-travel-border bg-travel-background">
         <div className="mx-auto flex w-full max-w-6xl flex-wrap items-center gap-x-6 gap-y-3 px-4 py-3 sm:px-6">
-          <Link href="/admin" aria-label="Panel de Mundo Viajero: resumen" className="shrink-0">
+          <Link href="/admin" aria-label="Panel de Universal Tours: resumen" className="shrink-0">
             <Logo />
           </Link>
           <AdminNav />

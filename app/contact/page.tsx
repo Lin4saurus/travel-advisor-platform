@@ -8,7 +8,7 @@ import { pageMetadata } from "@/lib/seo";
 
 export const metadata = pageMetadata({
   title: "Contacto",
-  description: "Cómo comunicarte con Mundo Viajero para cotizar un viaje o consultar por una solicitud que ya enviaste.",
+  description: "Cómo comunicarte con Universal Tours para cotizar un viaje o consultar por una solicitud que ya enviaste.",
   path: "/contact",
 });
 

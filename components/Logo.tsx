@@ -21,7 +21,7 @@ export default function Logo() {
         <polygon points="16,27 11,16 21,16" className="fill-travel-primary" />
         <circle cx="16" cy="16" r="1.8" className="fill-travel-primary-dark" />
       </svg>
-      <span className="text-base font-semibold tracking-tight text-travel-primary-dark sm:text-lg">
+      <span className="text-base font-semibold tracking-tight whitespace-nowrap text-travel-primary-dark sm:text-lg">
         {siteConfig.name}
       </span>
     </span>

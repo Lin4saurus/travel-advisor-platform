@@ -12,7 +12,7 @@ export default function Hero() {
       <SafeImage
         src="/images/travel-hero.jpg"
         alt=""
-        label="Mundo Viajero"
+        label="Universal Tours"
         showLabel={false}
         sizes="100vw"
         eager

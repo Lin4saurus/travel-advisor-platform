@@ -1,6 +1,6 @@
-# TASK.md — Plataforma de Viajes (Mundo Viajero)
+# TASK.md — Plataforma de Viajes (Universal Tours)
 
-**Objetivo actual:** Construir una plataforma B2C de asesoría, cotización y venta de viajes (destinos, paquetes, experiencias, eventos y cotización personalizada) con panel administrativo, inspirada en la amplitud funcional de Universal Tours pero con identidad propia.
+**Objetivo actual:** Construir una plataforma B2C de asesoría, cotización y venta de viajes (destinos, paquetes, experiencias, eventos y cotización personalizada) con panel administrativo, para Universal Tours (marca autorizada por el usuario el 2026-11-18; antes "Mundo Viajero").
 
 **Última actualización:** 2026-11-18 (UTC-4)
 
@@ -528,3 +528,4 @@ Este milestone lo hacés **vos**: descargar cada imagen y guardarla en la ruta i
 | 2026-11-18 | M12 fase 2: catálogo en Supabase (`catalog_items` + semilla generada desde `data/*.ts`), `getCatalog()` con caché por etiqueta y respaldo en `data/` (timeout 3 s, sin reintentos, pausa 30 s), rutas `[slug]` dinámicas, CRUD en `/admin/catalog/<tipo>` (crear, editar, publicar/despublicar, archivar/restaurar, duplicar). Lint/build limpios, lógica 136/136, sitio público verificado con la base caída. Panel con sesión sin probar (Supabase inexistente). |
 | 2026-11-18 | M13: `lib/seo.ts` + metadata en todas las páginas (canónicas en minúsculas, Open Graph, `noindex` en filtrados), `sitemap.ts`/`robots.ts`, `/about` y `/contact` reales (eran provisionales), `error.tsx`/`global-error.tsx`, catálogo vacío, cabeceras de seguridad. Auditoría (axe + 3 anchos + enlaces + sitemap + cabeceras): 2 hallazgos reales corregidos (enlaces en texto sin subrayar, casillas de 20 px); pasada final 643/643. Lint/build limpios. |
 | 2026-11-18 | UI del usuario: línea de tiempo animada en el itinerario del paquete (`ItineraryTimeline`, estilos `.timeline*` en `globals.css`; mejora progresiva, respeta "reducir movimiento") y botón "Me gusta" con contador partido en el detalle de paquetes y experiencias (`LikeButton`, `lib/likes.ts`, tabla `catalog_likes` en `supabase/migrations/m14-likes.sql`; conteo real, un voto por navegador vía cookie `mv_visitor`; sin base → no se muestra). Prueba en navegador 17/17 con datos temporales ya revertidos; lint/build limpios. Falta correr `m14-likes.sql`. |
+| 2026-11-18 | Marca: "Mundo Viajero" → **"Universal Tours"** en todo el sitio (nombre, títulos y metadatos, Open Graph, pie, textos legales y consentimiento del formulario, panel) y en la documentación. El usuario confirmó que trabaja para Universal Tours / el sitio es un encargo suyo. El logo sigue siendo la brújula propia del proyecto hasta que el cliente entregue el oficial. |

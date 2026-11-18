@@ -9,7 +9,7 @@ import { pageMetadata } from "@/lib/seo";
 
 export const metadata = pageMetadata({
   title: "Términos y condiciones",
-  description: "Condiciones generales de uso del sitio y de las solicitudes de cotización de Mundo Viajero.",
+  description: "Condiciones generales de uso del sitio y de las solicitudes de cotización de Universal Tours.",
   path: "/terms",
 });
 
@@ -27,13 +27,13 @@ export default function TermsPage() {
 
       <PageHeader
         title="Términos y condiciones"
-        description="Condiciones generales de uso del sitio y de las solicitudes de cotización de Mundo Viajero."
+        description="Condiciones generales de uso del sitio y de las solicitudes de cotización de Universal Tours."
       />
 
       <Section id="alcance" title="Sobre estas condiciones">
         <div className="max-w-3xl space-y-4 text-travel-text">
           <p>
-            Mundo Viajero es una plataforma de asesoría, cotización y venta de viajes. El contenido del sitio
+            Universal Tours es una plataforma de asesoría, cotización y venta de viajes. El contenido del sitio
             (destinos, paquetes, experiencias y eventos) es informativo: completar el formulario de{" "}
             <Link href="/quote" className={linkClass}>Cotizar mi viaje</Link> envía una{" "}
             <strong>solicitud de cotización</strong>, no una reserva confirmada. Más detalle del proceso en{" "}

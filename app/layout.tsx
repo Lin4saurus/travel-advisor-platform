@@ -20,13 +20,13 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   metadataBase: siteUrl(),
   title: {
-    default: "Mundo Viajero | Asesoría, cotización y venta de viajes",
-    template: "%s | Mundo Viajero",
+    default: "Universal Tours | Asesoría, cotización y venta de viajes",
+    template: "%s | Universal Tours",
   },
   description:
     "Asesoría personalizada, cotización y venta de viajes: destinos, paquetes, experiencias y eventos, en Bolivia y el mundo.",
-  applicationName: "Mundo Viajero",
-  openGraph: { siteName: "Mundo Viajero", locale: "es_BO", type: "website", images: [DEFAULT_OG_IMAGE] },
+  applicationName: "Universal Tours",
+  openGraph: { siteName: "Universal Tours", locale: "es_BO", type: "website", images: [DEFAULT_OG_IMAGE] },
   formatDetection: { telephone: false, email: false, address: false },
 };
 

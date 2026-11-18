@@ -1,12 +1,12 @@
 @AGENTS.md
 
-# CLAUDE.md — Plataforma de Viajes (Mundo Viajero)
+# CLAUDE.md — Plataforma de Viajes (Universal Tours)
 
 Contexto general y persistente del proyecto. El **avance** vive en [TASK.md](TASK.md), no aquí: este archivo describe el quién/qué/cómo; TASK.md dice en qué punto estamos.
 
 ## Descripción y objetivo
 
-Plataforma B2C de asesoría, cotización y venta de viajes: destinos, paquetes, experiencias, eventos y cotización personalizada, con panel administrativo. Marca propia **Mundo Viajero** (inspirada en la amplitud funcional de Universal Tours, sin copiar su identidad). Interfaz en español; destinos internacionales y nacionales (Bolivia).
+Plataforma B2C de asesoría, cotización y venta de viajes: destinos, paquetes, experiencias, eventos y cotización personalizada, con panel administrativo. Marca **Universal Tours** (hasta el 2026-11-18 el sitio usaba la marca propia "Mundo Viajero"; el usuario confirmó que trabaja para Universal Tours / el sitio es un encargo suyo y pidió usar su nombre). Interfaz en español; destinos internacionales y nacionales (Bolivia).
 
 El detalle de alcance (rutas, componentes, criterios de aceptación) está en los milestones de TASK.md.
 
@@ -94,7 +94,7 @@ Convenciones (derivadas de la configuración actual del repo):
 
 Decisiones de producto (fijadas en TASK.md):
 
-- **Marca propia.** No copiar literalmente identidad visual, textos, logos ni fotos de Universal Tours.
+- **Marca Universal Tours (autorizada, 2026-11-18).** El nombre viene de `siteConfig.name` (`config/site.ts`): cambiarlo ahí y no escribirlo a mano en componentes nuevos. El logo actual (brújula SVG de `components/Logo.tsx`) es propio del proyecto, no el oficial de la empresa: el logo, las fotos y los textos oficiales los entrega el cliente; no copiarlos de su web sin que los provea.
 - **Precios, fechas y disponibilidad son editables.** Si no están confirmados, mostrar `Consultar precio` / `Consultar fechas` (o `null` en los datos de demostración). Nunca presentar datos inventados como verificables ni eventos/artistas/entradas como confirmados.
 - **Sin persistencia simulada.** Si no hay backend, formularios (cotización, newsletter) no fingen guardar datos.
 - Sin promesas de tiempos de respuesta si no están definidos; sin logos de bancos hasta tener autorización.

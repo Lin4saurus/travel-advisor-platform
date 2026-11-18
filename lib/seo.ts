@@ -4,7 +4,7 @@ import type { Metadata } from "next";
 import { siteConfig } from "@/config/site";
 
 // URL pública del sitio, para URLs absolutas (canónicas, Open Graph, sitemap). Se configura con
-// `NEXT_PUBLIC_SITE_URL` (p. ej. https://mundoviajero.com) en el entorno de producción; sin ella se usa
+// `NEXT_PUBLIC_SITE_URL` (p. ej. https://tu-dominio.com) en el entorno de producción; sin ella se usa
 // localhost, lo que solo sirve para desarrollo.
 export function siteUrl(): URL {
   const raw = process.env.NEXT_PUBLIC_SITE_URL;
@@ -26,7 +26,7 @@ type PageMeta = {
   image?: string;
   // `true` = no indexar pero seguir los enlaces (listados filtrados, resultados vacíos, formularios precargados).
   noindex?: boolean;
-  // Usar el título tal cual, sin el sufijo " | Mundo Viajero" (la Home).
+  // Usar el título tal cual, sin el sufijo " | Universal Tours" (la Home).
   absoluteTitle?: boolean;
 };
 

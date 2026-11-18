@@ -9,7 +9,7 @@ import { pageMetadata } from "@/lib/seo";
 export const metadata = pageMetadata({
   title: "Sobre nosotros",
   description:
-    "Mundo Viajero es una agencia de asesoría y cotización de viajes: te ayudamos a planificar viajes nacionales e internacionales a tu medida.",
+    "Universal Tours es una agencia de asesoría y cotización de viajes: te ayudamos a planificar viajes nacionales e internacionales a tu medida.",
   path: "/about",
 });
 
@@ -42,7 +42,7 @@ export default function AboutPage() {
 
       <PageHeader
         title="Sobre nosotros"
-        description="Somos Mundo Viajero: asesoría, cotización y venta de viajes, por Bolivia y por el mundo."
+        description="Somos Universal Tours: asesoría, cotización y venta de viajes, por Bolivia y por el mundo."
       />
 
       <Section id="que-hacemos" title="Qué hacemos">

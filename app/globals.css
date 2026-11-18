@@ -3,7 +3,7 @@
 :root {
   color-scheme: light;
 
-  /* Paleta Mundo Viajero. Se exponen a Tailwind más abajo (bg-travel-*, text-travel-*, border-travel-*).
+  /* Paleta Universal Tours. Se exponen a Tailwind más abajo (bg-travel-*, text-travel-*, border-travel-*).
      Contraste WCAG AA (4.5:1) verificado el 2026-09-18 para los colores usados como texto sobre
      background, surface y sand: --travel-muted, --travel-success y --travel-warning se oscurecieron
      ligeramente respecto de la paleta base (#68758A, #218739, #C17C00) para cumplirlo.

@@ -15,7 +15,7 @@ import { getCatalog } from "@/lib/catalog/read";
 import { pageMetadata } from "@/lib/seo";
 
 export const metadata = pageMetadata({
-  title: "Mundo Viajero | Asesoría, cotización y venta de viajes",
+  title: "Universal Tours | Asesoría, cotización y venta de viajes",
   description:
     "Asesoría personalizada, cotización y venta de viajes: destinos, paquetes, experiencias y eventos, en Bolivia y el mundo.",
   path: "/",
@@ -140,7 +140,7 @@ export default async function Home() {
 
       <Section
         id="beneficios"
-        title="¿Por qué reservar con Mundo Viajero?"
+        title="¿Por qué reservar con Universal Tours?"
         description="Te acompañamos desde la idea hasta la cotización."
       >
         <ul className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
@@ -215,7 +215,7 @@ export default async function Home() {
         <SafeImage
           src="/images/newsletter-cta.jpg"
           alt=""
-          label="Mundo Viajero"
+          label="Universal Tours"
           showLabel={false}
           sizes="100vw"
         />

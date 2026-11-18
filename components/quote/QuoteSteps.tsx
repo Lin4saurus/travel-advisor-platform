@@ -518,7 +518,7 @@ export function ConfirmacionStep({
             >
               política de privacidad<span className="sr-only"> (se abre en otra pestaña)</span>
             </Link>{" "}
-            y acepto que Mundo Viajero use mis datos para responder a esta solicitud.
+            y acepto que Universal Tours use mis datos para responder a esta solicitud.
           </span>
         </ChoiceRow>
         {errors.acceptPrivacy && (

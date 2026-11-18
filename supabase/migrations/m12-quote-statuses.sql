@@ -1,4 +1,4 @@
--- Mundo Viajero — migración de M12 (panel administrativo): los 7 estados de una cotización.
+-- Universal Tours — migración de M12 (panel administrativo): los 7 estados de una cotización.
 --
 -- Solo para una base que YA ejecutó `supabase/schema.sql` antes de M12 (la que solo admitía 'Nueva',
 -- 'En revisión' y 'Enviada'). Una base nueva no la necesita: `schema.sql` ya trae los 7 estados.

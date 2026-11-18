@@ -1,4 +1,4 @@
--- Mundo Viajero — migración de M12 fase 2: el catálogo (paquetes, destinos, experiencias, eventos) en Supabase,
+-- Universal Tours — migración de M12 fase 2: el catálogo (paquetes, destinos, experiencias, eventos) en Supabase,
 -- editable desde el panel /admin. Antes vivía solo en `data/*.ts`; esos archivos quedan como semilla y como
 -- respaldo del sitio si la base no responde (ver lib/catalog/read.ts).
 --

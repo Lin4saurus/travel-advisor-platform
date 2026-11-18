@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 
 // Todo `/admin/*`: fuera de buscadores (además del `X-Robots-Tag` que pone proxy.ts).
 export const metadata: Metadata = {
-  title: { default: "Panel | Mundo Viajero", template: "%s | Panel Mundo Viajero" },
+  title: { default: "Panel | Universal Tours", template: "%s | Panel Universal Tours" },
   robots: { index: false, follow: false },
 };
 

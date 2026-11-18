@@ -114,9 +114,9 @@ export default function Header() {
                   <Link
                     href={item.href}
                     aria-current={active ? "page" : undefined}
-                    className={`relative block rounded-md px-3 py-2 text-sm font-medium transition-colors hover:text-travel-primary ${
+                    className={`relative block rounded-md px-2 py-2 text-sm font-medium whitespace-nowrap transition-colors hover:text-travel-primary xl:px-3 ${
                       active
-                        ? "text-travel-primary after:absolute after:inset-x-3 after:bottom-0 after:h-0.5 after:rounded-full after:bg-travel-primary"
+                        ? "text-travel-primary after:absolute after:inset-x-2 after:bottom-0 xl:after:inset-x-3 after:h-0.5 after:rounded-full after:bg-travel-primary"
                         : "text-travel-text"
                     }`}
                   >
@@ -132,7 +132,7 @@ export default function Header() {
           <Link
             href={quoteCta.href}
             aria-label={quoteCta.label}
-            className="inline-flex h-10 items-center rounded-full bg-travel-accent px-3 text-sm font-semibold text-travel-text transition hover:brightness-95 min-[390px]:px-5"
+            className="inline-flex h-10 items-center rounded-full bg-travel-accent px-3 text-sm font-semibold whitespace-nowrap text-travel-text transition hover:brightness-95 min-[390px]:px-5"
           >
             <span className="min-[390px]:hidden">{quoteCta.shortLabel}</span>
             <span className="hidden min-[390px]:inline">{quoteCta.label}</span>

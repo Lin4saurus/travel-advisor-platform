@@ -8,7 +8,7 @@ import { pageMetadata } from "@/lib/seo";
 
 export const metadata = pageMetadata({
   title: "Política de privacidad",
-  description: "Qué datos personales recopilamos en Mundo Viajero, para qué los usamos y qué derechos tienes.",
+  description: "Qué datos personales recopilamos en Universal Tours, para qué los usamos y qué derechos tienes.",
   path: "/privacy",
 });
 
@@ -26,7 +26,7 @@ export default function PrivacyPage() {
 
       <PageHeader
         title="Política de privacidad"
-        description="Qué datos personales recopilamos en Mundo Viajero, para qué los usamos y qué derechos tienes."
+        description="Qué datos personales recopilamos en Universal Tours, para qué los usamos y qué derechos tienes."
       />
 
       <Section id="datos" title="Qué datos recopilamos">

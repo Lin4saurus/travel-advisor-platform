@@ -1,4 +1,4 @@
--- Mundo Viajero — esquema de Supabase para las cotizaciones.
+-- Universal Tours — esquema de Supabase para las cotizaciones.
 -- Prerequisito de M10 (TASK.md): deja la base de datos lista para cuando M10 conecte el envío real de /quote.
 -- Este paso NO conecta el formulario todavía (sigue como en M9: no guarda ni envía nada).
 --

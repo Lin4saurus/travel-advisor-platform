@@ -1,4 +1,4 @@
--- Mundo Viajero — "Me gusta" en paquetes y experiencias (botón con contador del detalle).
+-- Universal Tours — "Me gusta" en paquetes y experiencias (botón con contador del detalle).
 --
 -- Un voto por navegador y por elemento: `visitor_id` es un identificador aleatorio que el servidor guarda en una
 -- cookie (`mv_visitor`, httpOnly). No es un dato personal: no se asocia a nombre, correo ni IP.

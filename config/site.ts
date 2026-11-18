@@ -23,7 +23,7 @@ type SiteConfig = {
 };
 
 export const siteConfig: SiteConfig = {
-  name: "Mundo Viajero",
+  name: "Universal Tours",
   tagline: "Asesoría, cotización y venta de viajes a tu medida.",
   contact: {
     email: null,
