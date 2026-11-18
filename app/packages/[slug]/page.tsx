@@ -3,6 +3,8 @@ import { notFound } from "next/navigation";
 import Breadcrumb from "@/components/Breadcrumb";
 import PackageCard from "@/components/PackageCard";
 import Section from "@/components/Section";
+import LikeButton from "@/components/LikeButton";
+import ItineraryTimeline from "@/components/packages/ItineraryTimeline";
 import PackageGallery from "@/components/packages/PackageGallery";
 import BulletList from "@/components/ui/BulletList";
 import { buttonStyles } from "@/components/ui/buttons";
@@ -19,6 +21,7 @@ import type { Metadata } from "next";
 import { getCatalog } from "@/lib/catalog/read";
 import { metaDescription, pageMetadata } from "@/lib/seo";
 import { formatDate, formatDuration, formatPrice } from "@/lib/format";
+import { getLikeState } from "@/lib/likes";
 import { relatedPackages } from "@/lib/packages";
 import type { ReactNode } from "react";
 
@@ -61,6 +64,7 @@ export default async function PackagePage(props: PageProps<"/packages/[slug]">) 
     ? destinations.find((item) => item.slug === pkg.destinationSlug)
     : undefined;
   const related = relatedPackages(pkg, packages, 3);
+  const likes = await getLikeState("packages", pkg.slug);
   const includeKeys = Object.keys(includeLabels) as Array<keyof typeof includeLabels>;
 
   // Solo lo confirmado: true → incluido, false → no incluido, null → no se dice nada.
@@ -148,6 +152,12 @@ export default async function PackagePage(props: PageProps<"/packages/[slug]">) 
               </Link>
             )}
           </div>
+          {/* Solo con un conteo real (lib/likes.ts): si la base no responde, no se muestra. */}
+          {likes && (
+            <div className="mt-5">
+              <LikeButton kind="packages" slug={pkg.slug} itemName={pkg.name} initial={likes} />
+            </div>
+          )}
         </section>
       </div>
 
@@ -201,16 +211,7 @@ export default async function PackagePage(props: PageProps<"/packages/[slug]">) 
 
           <DetailSection id="itinerario" title="Itinerario sugerido">
             {pkg.itinerary.length > 0 ? (
-              <ol className="space-y-5">
-                {pkg.itinerary.map((day, position) => (
-                  <li key={day.title}>
-                    <h3 className="font-semibold text-travel-text">
-                      Día {position + 1}: {day.title}
-                    </h3>
-                    <p className="mt-1 text-travel-muted">{day.description}</p>
-                  </li>
-                ))}
-              </ol>
+              <ItineraryTimeline days={pkg.itinerary} />
             ) : (
               <p className="text-travel-muted">
                 El itinerario se arma según tus fechas y tus preferencias.{" "}

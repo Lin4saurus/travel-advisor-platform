@@ -147,6 +147,13 @@ type CatalogItemInsert = Omit<CatalogItemRow, "id" | "created_at" | "updated_at"
 // paquete aunque acá no se use ningún `.select()` con relaciones embebidas; se dejan vacíos porque no hay ninguna
 // definida todavía (`travel_quote_items.quote_id` es una FK real en `supabase/schema.sql`, pero modelarla acá
 // solo hace falta si en algún momento se usa `.select("*, travel_quotes(...)")`).
+export type CatalogLikeRow = {
+  kind: "packages" | "experiences";
+  slug: string;
+  visitor_id: string;
+  created_at: string;
+};
+
 export type Database = {
   public: {
     Tables: {
@@ -166,6 +173,13 @@ export type Database = {
         Row: CatalogItemRow;
         Insert: CatalogItemInsert;
         Update: Partial<CatalogItemInsert>;
+        Relationships: [];
+      };
+      // "Me gusta" (supabase/migrations/m14-likes.sql).
+      catalog_likes: {
+        Row: CatalogLikeRow;
+        Insert: Omit<CatalogLikeRow, "created_at">;
+        Update: Partial<CatalogLikeRow>;
         Relationships: [];
       };
     };

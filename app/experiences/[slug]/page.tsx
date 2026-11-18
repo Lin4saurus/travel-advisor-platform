@@ -12,6 +12,8 @@ import type { Metadata } from "next";
 import { getCatalog } from "@/lib/catalog/read";
 import { metaDescription, pageMetadata } from "@/lib/seo";
 import { experiencesHref, relatedExperiences } from "@/lib/experiences";
+import { getLikeState } from "@/lib/likes";
+import LikeButton from "@/components/LikeButton";
 import type { ReactNode } from "react";
 
 // Sin prerender desde M12 (las experiencias se crean en el panel): ver el comentario de `dynamic` en
@@ -69,6 +71,7 @@ export default async function ExperiencePage(props: PageProps<"/experiences/[slu
     .map((categorySlug) => experienceCategories.find((item) => item.slug === categorySlug))
     .filter((item) => item !== undefined);
   const related = relatedExperiences(experience, experiences, 3);
+  const likes = await getLikeState("experiences", experience.slug);
   const facts: Array<[string, string]> = [
     ["Ciudad", experience.location ?? "A consultar"],
     ["Duración", experience.duration ?? "A consultar"],
@@ -141,6 +144,12 @@ export default async function ExperiencePage(props: PageProps<"/experiences/[slu
               Ver más experiencias
             </Link>
           </div>
+          {/* Solo con un conteo real (lib/likes.ts): si la base no responde, no se muestra. */}
+          {likes && (
+            <div className="mt-5">
+              <LikeButton kind="experiences" slug={experience.slug} itemName={experience.name} initial={likes} />
+            </div>
+          )}
         </section>
       </div>
 

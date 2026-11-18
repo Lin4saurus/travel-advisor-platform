@@ -70,3 +70,258 @@ body {
     outline-offset: 2px;
   }
 }
+
+/* ---------------------------------------------------------------------------------------------------------------
+   Línea de tiempo del itinerario (components/packages/ItineraryTimeline.tsx), adaptada del ejemplo "timeline" que
+   pasó el usuario: línea vertical, un punto por día que aparece con escala y el texto que entra desde la izquierda
+   al llegar a la vista. Mejora progresiva: sin JavaScript (o con "reducir movimiento") todo se ve desde el
+   principio; las clases que ocultan solo aplican cuando el componente marca `data-animate` en la lista.
+   --------------------------------------------------------------------------------------------------------------- */
+@layer components {
+  .timeline {
+    --timeline-dur: 0.3s;
+    --timeline-ease: cubic-bezier(0.65, 0, 0.35, 1);
+    list-style: none;
+    margin-left: 0.75rem;
+  }
+  .timeline__item {
+    position: relative;
+    padding: 0 0 1.75rem 1.5rem;
+  }
+  .timeline__item::before,
+  .timeline__item::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    display: block;
+    background-color: var(--travel-primary);
+    transition:
+      opacity var(--timeline-dur) var(--timeline-ease),
+      transform var(--timeline-dur) var(--timeline-ease);
+  }
+  /* Punto del día */
+  .timeline__item::before {
+    top: 0.3rem;
+    width: 1rem;
+    height: 1rem;
+    border-radius: 9999px;
+    box-shadow: 0 0 0 4px var(--travel-background);
+    transform: translateX(-50%) scale(1);
+    z-index: 1;
+  }
+  /* Tramo de línea hasta el día siguiente */
+  .timeline__item::after {
+    top: 0.8rem;
+    width: 2px;
+    height: 100%;
+    transform: translateX(-50%);
+  }
+  .timeline__item:last-child::after {
+    display: none;
+  }
+  .timeline__day,
+  .timeline__title,
+  .timeline__text {
+    display: block;
+    transition:
+      opacity var(--timeline-dur) var(--timeline-ease),
+      transform var(--timeline-dur) var(--timeline-ease);
+  }
+  .timeline__day {
+    font-size: 0.8125rem;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+    color: var(--travel-primary);
+    text-transform: uppercase;
+  }
+
+  /* Animación: solo con JavaScript activo y sin preferencia de movimiento reducido. */
+  .timeline[data-animate] .timeline__item::before {
+    transform: translateX(-50%) scale(0);
+  }
+  .timeline[data-animate] .timeline__day,
+  .timeline[data-animate] .timeline__title,
+  .timeline[data-animate] .timeline__text {
+    opacity: 0;
+    transform: translateX(-0.75rem);
+  }
+  .timeline[data-animate] .timeline__item--in::before {
+    transform: translateX(-50%) scale(1);
+  }
+  .timeline[data-animate] .timeline__item--in .timeline__day,
+  .timeline[data-animate] .timeline__item--in .timeline__title,
+  .timeline[data-animate] .timeline__item--in .timeline__text {
+    opacity: 1;
+    transform: translateX(0);
+  }
+  .timeline[data-animate] .timeline__item--in .timeline__title {
+    transition-delay: 0.05s;
+  }
+  .timeline[data-animate] .timeline__item--in .timeline__text {
+    transition-delay: 0.1s;
+  }
+
+  /* Desde tablet: el "Día N" pasa a una columna a la izquierda de la línea, como la fecha del ejemplo. */
+  @media (min-width: 768px) {
+    .timeline {
+      margin-left: 7rem;
+    }
+    .timeline__day {
+      position: absolute;
+      top: 0.2rem;
+      right: calc(100% + 1.25rem);
+      width: 6rem;
+      text-align: right;
+    }
+    .timeline[data-animate] .timeline__day {
+      transform: translateX(0.75rem);
+    }
+  }
+
+  /* -------------------------------------------------------------------------------------------------------------
+     Botón "Me gusta" con contador partido (components/LikeButton.tsx), adaptado del ejemplo "split counter like
+     button": bloque de número a la izquierda, pulgar + texto a la derecha; al pasar el ratón se invierten los
+     colores, el texto sale por la derecha y el pulgar crece al centro; al pulsar se hunde y el pulgar gira.
+     Colores de la marca en vez del cian del ejemplo (contraste AA).
+     ------------------------------------------------------------------------------------------------------------- */
+  .like-button {
+    --like-dur: 0.2s;
+    display: inline-flex;
+    align-items: stretch;
+    width: 11.5rem;
+    height: 3rem;
+    overflow: hidden;
+    border-radius: 0.5rem;
+    background-color: var(--travel-background);
+    border: 1px solid var(--travel-border);
+    box-shadow: 0 4px 0 rgba(23, 43, 77, 0.15);
+    cursor: pointer;
+    user-select: none;
+    transition:
+      background-color var(--like-dur) ease,
+      box-shadow var(--like-dur) ease,
+      transform var(--like-dur) ease;
+  }
+  .like-button__count {
+    position: relative;
+    display: flex;
+    width: 32%;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    background-color: var(--travel-primary);
+    color: #fff;
+    font-weight: 700;
+    font-size: 1.125rem;
+    transition:
+      background-color var(--like-dur) ease,
+      color var(--like-dur) ease;
+  }
+  .like-button__num {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  /* El número nuevo entra desde arriba y el viejo sale por abajo (como el contador partido del ejemplo). */
+  .like-button__num--in {
+    animation: like-num-in var(--like-dur) ease both;
+  }
+  .like-button__num--out {
+    animation: like-num-out var(--like-dur) ease both;
+  }
+  @keyframes like-num-in {
+    from { transform: translateY(-110%); }
+    to { transform: translateY(0); }
+  }
+  @keyframes like-num-out {
+    from { transform: translateY(0); }
+    to { transform: translateY(110%); }
+  }
+  .like-button__label {
+    position: relative;
+    display: flex;
+    flex: 1;
+    align-items: center;
+    justify-content: center;
+    gap: 0.4rem;
+    overflow: hidden;
+    color: var(--travel-primary);
+    font-weight: 600;
+  }
+  .like-button__icon,
+  .like-button__text {
+    transition: transform var(--like-dur) ease;
+  }
+  .like-button__icon {
+    flex-shrink: 0;
+  }
+
+  /* Hover (solo con puntero real: en móvil no hay hover y el estado quedaría "pegado"). */
+  @media (hover: hover) {
+    .like-button:hover {
+      background-color: var(--travel-primary);
+    }
+    .like-button:hover .like-button__count {
+      background-color: var(--travel-background);
+      color: var(--travel-primary);
+    }
+    .like-button:hover .like-button__label {
+      color: #fff;
+    }
+    .like-button:hover .like-button__icon {
+      transform: translateX(1.9rem) scale(1.35);
+    }
+    .like-button:hover .like-button__text {
+      transform: translateX(250%);
+    }
+  }
+  .like-button:active {
+    transform: scale(0.96) translateY(6%);
+    box-shadow: 0 1px 0 rgba(23, 43, 77, 0.25);
+  }
+  .like-button:active .like-button__icon {
+    transform: translateX(1.9rem) scale(1.35) rotate(-25deg);
+  }
+  /* Marcado: el pulgar queda relleno (se ve en el SVG) y el borde toma el color primario. */
+  .like-button[data-liked] {
+    border-color: var(--travel-primary);
+  }
+  .like-button__status {
+    min-height: 1.25rem;
+    margin-top: 0.25rem;
+    font-size: 0.875rem;
+    color: var(--travel-danger);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .like-button,
+    .like-button__count,
+    .like-button__icon,
+    .like-button__text {
+      transition: none;
+    }
+    .like-button__num--in,
+    .like-button__num--out {
+      animation: none;
+    }
+    .like-button__num--out {
+      display: none;
+    }
+    .like-button:active,
+    .like-button:active .like-button__icon {
+      transform: none;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .timeline__item::before,
+    .timeline__item::after,
+    .timeline__day,
+    .timeline__title,
+    .timeline__text {
+      transition: none;
+    }
+  }
+}
