@@ -55,22 +55,26 @@ export default function LikeButton({
         type="button"
         onClick={onClick}
         aria-pressed={state.liked}
-        aria-label={`Me gusta: ${itemName} (${state.count} ${state.count === 1 ? "persona" : "personas"})`}
         className="like-button"
         data-liked={state.liked ? "" : undefined}
       >
-        <span className="like-button__count" aria-hidden="true">
+        {/* Sin aria-label: el nombre accesible sale del contenido ("24 Me gusta: <nombre>"), así contiene el
+            texto visible tal cual (WCAG 2.5.3: quien usa control por voz dice lo que ve). El número que sale en la
+            animación y el ícono se ocultan a lectores de pantalla; el espacio entre número y texto es real (en un
+            flex no se ve, pero el nombre accesible lo necesita). */}
+        <span className="like-button__count">
           {previous !== null && previous !== state.count && (
-            <span key={`out-${previous}-${state.count}`} className="like-button__num like-button__num--out">
+            <span key={`out-${previous}-${state.count}`} aria-hidden="true" className="like-button__num like-button__num--out">
               {formatCount(previous)}
             </span>
           )}
           <span key={`in-${state.count}`} className={`like-button__num ${previous !== null ? "like-button__num--in" : ""}`}>
             {formatCount(state.count)}
           </span>
-        </span>
-        <span className="like-button__label" aria-hidden="true">
+        </span>{" "}
+        <span className="like-button__label">
           <svg
+            aria-hidden="true"
             className="like-button__icon"
             viewBox="0 0 24 24"
             width="24"
@@ -85,6 +89,7 @@ export default function LikeButton({
             <path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3zM7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3" />
           </svg>
           <span className="like-button__text">{state.liked ? "Te gusta" : "Me gusta"}</span>
+          <span className="sr-only">: {itemName}</span>
         </span>
       </button>
       <p role="status" aria-live="polite" className="like-button__status">

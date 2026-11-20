@@ -7,29 +7,30 @@ import { siteConfig } from "@/config/site";
 import { pageMetadata } from "@/lib/seo";
 
 export const metadata = pageMetadata({
-  title: "Contacto",
-  description: "Cómo comunicarte con Universal Tours para cotizar un viaje o consultar por una solicitud que ya enviaste.",
+  title: "Contacto y oficinas",
+  description:
+    "Teléfonos, WhatsApp, correo y oficinas de Universal Tours en Santa Cruz de la Sierra, con sus horarios de atención.",
   path: "/contact",
 });
 
 const linkClass = "rounded-sm text-travel-primary underline underline-offset-4 hover:decoration-2";
 
-type Channel = { label: string; value: string; href: string | null };
+type Channel = { label: string; value: string; href: string | null; external?: boolean };
 
-// Contacto (M13; antes era una página provisional). Muestra solo los canales configurados en `config/site.ts`
-// (hoy ninguno: correo, teléfono, dirección y redes están en `null`/vacío porque no hay datos confirmados). No hay
-// un formulario de contacto propio: el canal que sí funciona y guarda de verdad es el de cotización, que tiene un
-// campo de comentarios libre y pide los datos para responder.
+// Contacto: canales y oficinas de `config/site.ts` (datos reales de Universal Tours). Si un dato se borra de la
+// configuración, simplemente deja de mostrarse. No hay formulario de contacto propio: para una propuesta de
+// viaje está el formulario de cotización, que guarda la solicitud y pide los datos para responder.
 export default function ContactPage() {
-  const { email, reservationsEmail, phone, address, hours } = siteConfig.contact;
+  const { email, reservationsEmail, phone, phoneHref, whatsapp, whatsappLabel } = siteConfig.contact;
   const channels: Channel[] = [];
+  if (whatsapp) {
+    channels.push({ label: "WhatsApp", value: whatsappLabel ?? `+${whatsapp}`, href: `https://wa.me/${whatsapp}`, external: true });
+  }
+  if (phone) channels.push({ label: "Teléfono", value: phone, href: phoneHref ? `tel:${phoneHref}` : null });
   if (email) channels.push({ label: "Correo", value: email, href: `mailto:${email}` });
   if (reservationsEmail && reservationsEmail !== email) {
     channels.push({ label: "Reservas y cambios", value: reservationsEmail, href: `mailto:${reservationsEmail}` });
   }
-  if (phone) channels.push({ label: "Teléfono", value: phone, href: `tel:${phone.replace(/[^\d+]/g, "")}` });
-  if (address) channels.push({ label: "Dirección", value: address, href: null });
-  if (hours) channels.push({ label: "Horario de atención", value: hours, href: null });
 
   return (
     <main className="flex-1">
@@ -38,43 +39,27 @@ export default function ContactPage() {
       </div>
 
       <PageHeader
-        title="Contacto"
-        description="Escríbenos para cotizar un viaje o consultar por una solicitud que ya enviaste."
+        title="Contacto y oficinas"
+        description="Escríbenos, llámanos o visítanos: nuestros asesores te ayudan a planificar tu viaje."
       />
 
-      <Section id="cotizar" title="Para cotizar un viaje o hacer una consulta">
-        <div className="max-w-3xl space-y-4 text-travel-text">
-          <p>
-            La forma más directa de escribirnos es el formulario de cotización. Además de tu destino, fechas y
-            viajeros, tiene un espacio de comentarios donde puedes contarnos cualquier duda; con los datos de contacto
-            que dejes, te respondemos por el medio que prefieras.
-          </p>
-          <p>
-            Si ya enviaste una solicitud y quieres cambiar algo, envía una nueva e indica en los comentarios tu número
-            de referencia (TV-2026-####). Más detalles en{" "}
-            <Link href="/booking-info#cambios" className={linkClass}>
-              Información de reservas
-            </Link>
-            .
-          </p>
-          <div className="pt-2">
-            <Link href="/quote" className={buttonStyles.secondary}>
-              Ir al formulario de cotización
-            </Link>
-          </div>
-        </div>
-      </Section>
-
-      <Section id="canales" title="Otros canales" tone="surface">
-        {channels.length > 0 || siteConfig.social.length > 0 ? (
-          <dl className="grid max-w-3xl gap-4 sm:grid-cols-2">
+      {channels.length > 0 && (
+        <Section id="canales" title="Escríbenos o llámanos">
+          <dl className="grid gap-4 sm:grid-cols-3">
             {channels.map((channel) => (
-              <div key={channel.label} className="rounded-xl border border-travel-border bg-travel-background p-4">
+              // `min-w-0` + `overflow-wrap:anywhere`: el correo es una sola "palabra" larga; sin esto la tarjeta se
+              // ensanchaba para no cortarlo y la página desbordaba 24 px a 320 px.
+              <div key={channel.label} className="min-w-0 rounded-xl border border-travel-border bg-travel-background p-5">
                 <dt className="text-sm font-medium text-travel-muted">{channel.label}</dt>
-                <dd className="mt-1 break-words text-travel-text">
+                <dd className="mt-1 text-lg font-semibold text-travel-text [overflow-wrap:anywhere]">
                   {channel.href ? (
-                    <a href={channel.href} className={linkClass}>
+                    <a
+                      href={channel.href}
+                      className={linkClass}
+                      {...(channel.external ? { target: "_blank", rel: "noopener noreferrer" } : {})}
+                    >
                       {channel.value}
+                      {channel.external && <span className="sr-only"> (se abre en una pestaña nueva)</span>}
                     </a>
                   ) : (
                     channel.value
@@ -82,26 +67,85 @@ export default function ContactPage() {
                 </dd>
               </div>
             ))}
-            {siteConfig.social.length > 0 && (
-              <div className="rounded-xl border border-travel-border bg-travel-background p-4">
-                <dt className="text-sm font-medium text-travel-muted">Redes sociales</dt>
-                <dd className="mt-1 flex flex-wrap gap-x-4 gap-y-1">
-                  {siteConfig.social.map((network) => (
-                    <a key={network.href} href={network.href} target="_blank" rel="noopener noreferrer" className={linkClass}>
-                      {network.label}
-                    </a>
-                  ))}
-                </dd>
-              </div>
-            )}
           </dl>
-        ) : (
-          <p className="max-w-3xl text-travel-text">
-            Todavía no publicamos un correo, un teléfono ni redes sociales en el sitio. Mientras tanto, el formulario
-            de cotización es el canal para escribirnos.
+        </Section>
+      )}
+
+      {siteConfig.branches.length > 0 && (
+        <Section id="oficinas" title="Nuestras oficinas" tone="surface">
+          <ul className="grid gap-6 md:grid-cols-2">
+            {siteConfig.branches.map((branch) => (
+              <li key={branch.name} className="rounded-2xl border border-travel-border bg-travel-background p-6">
+                <h3 className="text-xl font-semibold text-travel-primary-dark">{branch.name}</h3>
+                <p className="mt-2 text-travel-text">{branch.address}</p>
+                <ul className="mt-4 space-y-1">
+                  {branch.phones.map((entry) => (
+                    <li key={entry.href}>
+                      <a
+                        href={entry.href.startsWith("http") ? entry.href : `tel:${entry.href}`}
+                        className={linkClass}
+                        {...(entry.href.startsWith("http") ? { target: "_blank", rel: "noopener noreferrer" } : {})}
+                      >
+                        {entry.label}
+                      </a>
+                    </li>
+                  ))}
+                </ul>
+                <div className="mt-4">
+                  <p className="text-sm font-medium text-travel-muted">Horario de atención</p>
+                  <ul className="mt-1 text-travel-text">
+                    {branch.hours.map((line) => (
+                      <li key={line}>{line}</li>
+                    ))}
+                  </ul>
+                </div>
+              </li>
+            ))}
+          </ul>
+        </Section>
+      )}
+
+      <Section id="cotizar" title="¿Quieres una propuesta de viaje?">
+        <div className="max-w-3xl space-y-4 text-travel-text">
+          <p>
+            Completa el formulario de cotización con tu destino, fechas, viajeros y presupuesto. Tiene un espacio de
+            comentarios para cualquier duda y te respondemos por el medio que prefieras.
           </p>
-        )}
+          <p>
+            Si ya enviaste una solicitud y quieres cambiar algo, escríbenos indicando tu número de referencia
+            (TV-2026-####). Más detalles en{" "}
+            <Link href="/booking-info#cambios" className={linkClass}>
+              Información de reservas
+            </Link>
+            .
+          </p>
+          <div className="pt-2">
+            <Link href="/quote" className={buttonStyles.secondary}>
+              Cotizar mi viaje
+            </Link>
+          </div>
+        </div>
       </Section>
+
+      {siteConfig.social.length > 0 && (
+        <Section id="redes" title="Síguenos" tone="surface">
+          <ul className="flex flex-wrap gap-3">
+            {siteConfig.social.map((network) => (
+              <li key={network.href}>
+                <a
+                  href={network.href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex min-h-11 items-center rounded-full border border-travel-primary bg-travel-background px-5 font-medium text-travel-primary hover:bg-travel-surface"
+                >
+                  {network.label}
+                  <span className="sr-only"> (se abre en una pestaña nueva)</span>
+                </a>
+              </li>
+            ))}
+          </ul>
+        </Section>
+      )}
     </main>
   );
 }

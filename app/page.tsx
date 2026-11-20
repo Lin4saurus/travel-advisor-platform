@@ -26,22 +26,23 @@ export const metadata = pageMetadata({
 // panel guarda un cambio (invalida la etiqueta del catálogo).
 export const revalidate = 300;
 
+// Beneficios reales de Universal Tours (universaltours.com.bo, revisado el 2026-11-20), redactados aquí.
 const benefits = [
   {
-    title: "Asesoría personalizada",
-    text: "Te escuchamos y armamos opciones según lo que buscas en tu viaje.",
+    title: "Desde 1975",
+    text: "Una agencia boliviana con décadas de experiencia organizando viajes, con certificación IATA.",
   },
   {
-    title: "Cotización a tu medida",
-    text: "Pídenos una propuesta con tus fechas, viajeros y presupuesto.",
+    title: "Asesores de verdad",
+    text: "Te atienden personas en Bolivia, en nuestras oficinas, por teléfono o por WhatsApp.",
   },
   {
-    title: "Bolivia y el mundo",
-    text: "Desde escapadas nacionales hasta viajes internacionales.",
+    title: "Pago en cuotas",
+    text: "Puedes financiar tu viaje en cuotas sin intereses; tu asesor te explica las condiciones.",
   },
   {
-    title: "Experiencias y eventos",
-    text: "Suma excursiones, entretenimiento y eventos a tu plan.",
+    title: "Hertz y Dollar en Bolivia",
+    text: "Somos representantes exclusivos: suma el alquiler de auto a tu viaje.",
   },
 ];
 

@@ -8,4 +8,15 @@ export type PaymentMethod = {
   description: string | null;
 };
 
-export const paymentMethods: PaymentMethod[] = [];
+// Las dos que publica universaltours.com.bo (revisado el 2026-11-20): el portal de "Pagos QR" y el pago en cuotas.
+// No se detallan bancos, montos ni plazos porque el sitio no los publica: se confirman con la cotización.
+export const paymentMethods: PaymentMethod[] = [
+  {
+    label: "Pago con código QR",
+    description: "Paga desde la app de tu banco escaneando el código QR que te enviamos con tu reserva.",
+  },
+  {
+    label: "Pago en cuotas",
+    description: "Universal Tours ofrece financiar tu viaje en cuotas sin intereses; consulta las condiciones con tu asesor.",
+  },
+];

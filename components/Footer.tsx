@@ -34,7 +34,14 @@ export default function Footer() {
     contactItems.push({
       label: "Teléfono",
       value: contact.phone,
-      href: `tel:${contact.phone.replace(/\s+/g, "")}`,
+      href: contact.phoneHref ? `tel:${contact.phoneHref}` : undefined,
+    });
+  }
+  if (contact.whatsapp) {
+    contactItems.push({
+      label: "WhatsApp",
+      value: contact.whatsappLabel ?? `+${contact.whatsapp}`,
+      href: `https://wa.me/${contact.whatsapp}`,
     });
   }
   if (contact.address) {
@@ -101,7 +108,7 @@ export default function Footer() {
             ))}
             <li>
               <Link href="/contact" className={linkClass}>
-                Escríbenos desde el formulario de contacto
+                Oficinas y horarios
               </Link>
             </li>
           </ul>
